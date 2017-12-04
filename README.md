@@ -66,6 +66,11 @@ TODO have a look at:
 Data:
 - [NorthEuraLex](http://northeuralex.org/): a database containing wordlists for many languages spoken in Northern Eurasia. The wordlists consist of translations of >1.000 concepts. The words have been transcribed into IPA.
 
+Tools:
+- [nwalign 0.3.1](https://pypi.python.org/pypi/nwalign/?): Needleman-Wunsch global sequence alignment. As long as it uses cython and numpy it is also a very efficient tool.
+- [python-Levenshtein 0.12.0](https://pypi.python.org/pypi/python-Levenshtein/0.12.0): Python extension for computing string edit distances and similarities. Uses Python C.
+- [editdistance 0.4](https://pypi.python.org/pypi/editdistance): One more implementation of Levenshtein distance.
+
 ## Project members
 
 - Verena Blaschke (verenablaschke)
