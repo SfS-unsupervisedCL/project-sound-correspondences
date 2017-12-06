@@ -2,7 +2,7 @@
 
 import sys
 
-# concepts_y[x] contains the list of vocabulary items for concept no. x in language y
+# concepts_y[x] contains the list of vocabulary items for concept no. x+1 in language y
 concepts_1 = []
 concepts_2 = []
 
