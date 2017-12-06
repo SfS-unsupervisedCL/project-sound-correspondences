@@ -22,15 +22,33 @@ Our research questions are:
 
 ## Method
 
+note: We decided to change from PMI-based one-to-one alignments of symbols to the decision-tree-based induction of correspondence rules based on phonetic features and contextual information (similar to Wettig et al. 2012) because we think that this might help us capture more complex correspondences.
+
 data:
 - see below. We will pick languages from language families that we are familiar with (Germanic, Slavic, Romance).
 
-method:
-1. pre-processing: determine which word pairs are potential cognates (using a distance measuring algorithm? (weighted Levenshtein distance?))
-2. align the sound segments of the potential cognates
-3. compute the similarity scores between aligned sound segments (-> pointwise mutual information)
-4. use the information from step 3 to do new alignments
-5. repeat 3 & 4 until new iterations do not significantly change the similarity scores anymore
+preprocessing:
+- construct bilingual word list
+- eliminate unlikely candidates for cognates
+- the encoding of phonetic features in Wettig et al. seems to be somewhat particular to Uralic languages
+  - 2 different vowel lengths should be enough
+  - +/- nasalization feature for vowels
+  - stress?
+  - palatalization
+  - make the features configurable so that it would be possible to add additional features (tone, airstream etc.)
+
+method (based on Wettig et al. 2012):
+- align word pairs on a symbol level
+- create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) (random forest)
+- repeat until convergence
+
+objective function:
+- weighted entropy in leaf nodes (instead of MDL)?
+
+evaluation:
+- imputation and normalized edit distance (maybe also normalized by edit distance between langs?) is the easiest method
+- time permitting, we might be able to at least compute recall values for the generated rules (lit research!)
+- doing the literature research necessary for calculating precision/F1-score would be likely be extremely time-consuming 
 
 to consider:
 - contexts, abstraction
@@ -38,6 +56,12 @@ to consider:
 - encode phonetic information? (presumably, correspondences between 'similar' sounds are more likely than between very different sounds)
 
 ## Relevant literature 
+
+a decision-tree algorithm using contexts and phonological features:
+- Wettig, H., Reshetnikov, K., & Yangarber, R. (2012). [Using context and phonetic features in models of etymological sound change](https://pdfs.semanticscholar.org/d2ea/1dbe1a81f60f99dab04dffc957622b8cb9f2.pdf). _In Proceedings of the EACL 2012 Joint Workshop of LINGVIS & UNCLH_ (pp. 108-116). Association for Computational Linguistics.
+
+decision tree algorithm taking into account each segment's left and right contexts:
+- Hoste, V., Daelemans, W., & Gillis, S. (2004). [Using Rule-Induction Techniques to Model Pronunciation Variation in Dutch](https://www.clips.uantwerpen.be/~gillis/pdf/20040107.9620.cslfinal.pdf). *Computer Speech & Language, 18*(1), 1-23.
 
 unsupervised cognate identification (incl. identification of sound correspondences) using PMI:
 - Rama,  T.,  J.  Wahle,  P.  Sofroniev,  and  G.  Jager  (2017). [Fast  and  unsupervised  methods  for  multilingual  cognate  clustering](https://arxiv.org/pdf/1702.04938.pdf). *arXiv preprint arXiv:1702.04938*.
@@ -52,10 +76,7 @@ this paper uses multiple characteristics for identifying cognates ("recurrent so
 the following paper uses phonetic information and a Levenshtein-like algorithm for transforming a word into a translation that is a  (potential) cognate:
 - Oakes, M. P. (2000). [Computer Estimation of Vocabulary in a Protolanguage from Word Lists in Four Daughter Languages](http://www.sfs.uni-tuebingen.de/~roland/Literature/Oakes(2000)-computer-estimation-proto-language-cognate-detection.pdf). *Journal of Quantitative Linguistics 7*(3), 233-243.
 
-this paper uses a decision tree algorithm and takes into account the phoneme's left and right contexts:
-- Hoste, V., Daelemans, W., & Gillis, S. (2004). [Using Rule-Induction Techniques to Model Pronunciation Variation in Dutch](https://www.clips.uantwerpen.be/~gillis/pdf/20040107.9620.cslfinal.pdf). *Computer Speech & Language, 18*(1), 1-23.
-
-TODO have a look at:
+more:
 - [Learning Bias and Phonological-Rule Induction](https://www.aclweb.org/anthology/J/J96/J96-4003.pdf)
 - [Phonetic Alignment and Similarity](https://link.springer.com/content/pdf/10.1023%2FA%3A1025071200644.pdf)
 - [Determining Recurrent Sound Correspondences by Inducing Translation Models](http://www.anthology.aclweb.org/C/C02/C02-1016.pdf)
