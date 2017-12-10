@@ -9,8 +9,13 @@ def read_file(file):
 	with open(file, 'r', encoding='utf-8') as f:
 		for line in f:
 			line = line.replace(',', '').strip()
-			for symbol in line:
-				symbols.add(symbol)
+			for symbolIdx in range(len(line)):
+				if line[symbolIdx] == 'ʲ':
+					symbols.add(line[symbolIdx - 1:symbolIdx + 1])
+				elif line[symbolIdx] == '͡':
+					symbols.add(line[symbolIdx - 1:symbolIdx + 2])
+				else:
+					symbols.add(line[symbolIdx])
 
 if __name__ == "__main__":
 	n_args = len(sys.argv)
