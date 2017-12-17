@@ -29,28 +29,30 @@ data:
 
 preprocessing:
 - [x]  construct bilingual word list
-- [ ] eliminate unlikely candidates for cognates (NED > 0.5? also take into account phonetic information?)
-  - we should take into account phonetic information here, otherwise we will probably get a lot of false negatives
-  - for now, comparing ASJP versions of the strings should be fine since we work with IE languages
-  - [ ] ipa2asjp transformation
-  - [ ] ASJP-based NED
-  - [ ] discard word pairs with low NED scores
-  - [ ] change to a more language-family-independent method
 - [ ] encode IPA symbols as collections of values for phonetic features
   - maybe like this:
-  - [ ] TSV file where more IPA characters and/or features can easily be added (first column: IPA character, subsequent columns: features)
-  - class for sound instances where fields store the values for the features
-  - [ ] alternative: one dictionary per feature (eg. manner['b']='plosive') 
-  - the encoding of phonetic features in Wettig et al. seems to be somewhat particular to Uralic languages
-    - 2 different vowel lengths should be enough
-    - +/- nasalization feature for vowels
-    - stress? (not included in the NorthEuraLex dataset)
-    - add palatalization to "secondary features of consonantal articulation" category
-    - make the features configurable so that it would be possible to add additional features (tone, airstream etc.)
+  - [x] TSV file where more IPA characters and/or features can easily be added (first column: IPA character, subsequent columns: features)
+  - [ ] class for sound instances where fields store the values for the features
+    - the advantage of doing this instead of using feature dictionaries (eg. manner['b']='plosive') is that we can also use instances of this class during imputation & evalutation 
+- [ ] eliminate unlikely candidates for cognates
+  - [ ] write a modified version of the Levenshtein distance that computes the replacement costs based on the sounds' phonetic features
+    - ie., if we have _n_ features, then each feature change costs _1/n_
+    - we could consider giving different weights to different features
+    - for features with values that fall on a scale, we could even consider giving different weights to different changes
+  - is a NED of 0.5 a good threshold?
+- the encoding of phonetic features in Wettig et al. seems to be somewhat particular to Uralic languages
+  - 2 different vowel lengths should be enough
+  - +/- nasalization feature for vowels
+  - stress? (not included in the NorthEuraLex dataset)
+  - add palatalization to "secondary features of consonantal articulation" category
+  - make the features configurable so that it would be possible to add additional features (tone, airstream etc.)
 
 method (based on Wettig et al. 2012; see also slides in _doc_ folder):
 - [ ] align word pairs on a symbol level
 - [ ] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) (random forest)
+  - [ ] easily + quickly identify previous vowel/consonant etc.
+  - [ ] look into scikit-learn and/or other ML libraries--Is there a library that we can use that builds the trees for us and that lets us transform trees into rule sets?
+  - otherwise: build our own trees (we need question nodes, leaf nodes and a main method/class that creates the trees)
 - [ ] repeat until convergence
 
 objective function:
@@ -58,9 +60,11 @@ objective function:
 
 evaluation:
 - [ ] imputation and normalized edit distance (maybe also normalized by edit distance between langs?) is the easiest method
-  - /!\ imputation requires a transformation from sets of features to IPA symbols. some feature combinations are impossible and cannot be represented by IPA symbols.
-  - use some sort of error symbol to mark impossible feature combinations?
-  - alternative: pick closes IPA symbol (within reason?)
+  - we can re-use the modified NED/Levenshtein distance from the preprocessing step here
+  - human-readable version: transform imputed sounds into IPA symbols 
+    - /!\ some feature combinations are impossible and cannot be represented by IPA symbols
+    - use some sort of error symbol to mark impossible feature combinations?
+    - alternative: pick closest IPA symbol (within reason?)
 - [ ] transform trees into rule sets
 - time permitting, we might be able to at least compute recall values for the generated rules (lit research!)
 - doing the literature research necessary for calculating precision/F1-score would be likely be extremely time-consuming
