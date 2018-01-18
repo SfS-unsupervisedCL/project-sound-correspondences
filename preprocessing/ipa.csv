@@ -1,4 +1,4 @@
-symbol,type,manner,place,voice,secondary,vertical,horizontal,rounding,length,nasalization
+#symbol,type,manner,place,voice,secondary,vertical,horizontal,rounding,length,nasalization
 a,v,,,,,open,front,unrounded,normal,none
 ɐ,v,,,,,near-open,central,unrounded,normal,none
 ɑ,v,,,,,open,back,unrounded,normal,none
