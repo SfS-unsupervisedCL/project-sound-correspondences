@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from preprocessing.phon_inventory import process_line
 from phone import Phone
 
@@ -29,9 +30,11 @@ def read_ipa(ipa_file):
 
 def to_phone(symbol):
     if len(symbol) == 1:
-        return ipa_symbols[symbol]
-    phone = ipa_symbols[symbol[0]]
+        return copy.deepcopy(ipa_symbols[symbol])
+    phone = copy.deepcopy(ipa_symbols[symbol[0]])
+    print('symbol', symbol)
     if '͡' in symbol:
+        # TODO diphthong
         phone.manner = 'affricate'
     if 'ʲ' in symbol:
         phone.secondary = 'palatalized'
@@ -123,7 +126,6 @@ def needleman_wunsch(word1, word2):
     # add missed numbers to the table
     for i, sound1 in enumerate(word1):
         for j, sound2 in enumerate(word2):
-            print(sound1, sound2)
             top = greed[i][j + 1] - 1
             left = greed[i + 1][j] - 1
 
@@ -133,7 +135,6 @@ def needleman_wunsch(word1, word2):
                 top_left = greed[i][j] - 1
 
             greed[i + 1][j + 1] = max(top, left, top_left)
-            print(max(top, left, top_left))
 
     # construct the best alignment
     align1 = []
@@ -181,3 +182,8 @@ if __name__ == "__main__":
     print(word_symbols[0], word_symbols[4], word_phones[0].distance(word_phones[4]))
     print(word_symbols[1], word_symbols[3], word_phones[1].distance(word_phones[3]))
     print(word_symbols[1], word_symbols[7], word_phones[1].distance(word_phones[7]))
+    print('t', to_phone('t'))
+    print('t', 'd', to_phone('t').distance(to_phone('d')))
+    print('t', 't', to_phone('t').distance(to_phone('t')))
+    print(needleman_wunsch(process_line('GATTACA'), (process_line('GCATGCU'))))
+    
