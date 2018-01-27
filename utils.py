@@ -1,3 +1,4 @@
+import numpy as np
 from preprocessing.phon_inventory import process_line
 from phone import Phone
 
@@ -78,6 +79,91 @@ def lev_distance(w1, w2):
         previous_row = current_row
 
     return previous_row[-1]
+
+
+def needleman_wunsch(word1, word2):
+    """
+    Implementation of the Needleman-Wunsch algorithm,
+    which search for the optimal alignment of two sequences.
+    
+    >>> needleman_wunsch(['g', 'a', 't', 't', 'a', 'c', 'a'], ['g', 'c', 'a', 't', 'g', 'c', 'u'])
+    [['g', '-', 'a', 't', 't', 'a', 'c', 'a']
+     ['g', 'c', 'a', 't', '-', 'g', 'c', 'u']]
+     
+    >>> needleman_wunsch(['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ'], ['tʲ', 'ɪ', 'eˑ'])
+    [['tʲ', 'ɪ', '-', 'eˑ']
+     ['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ']]
+    
+    :param word1: sound representation of the first word
+    :type word1: list[str]
+    :param word2: sound representation of the second word
+    :type word2: list[str]
+    :return: a pair of aligned sound representations of two words
+    :rtype: tuple(str, str)
+    """
+    len_w1 = len(word1)
+    len_w2 = len(word2)
+
+    if len_w1 > len_w2:
+        return needleman_wunsch(word2, word1)
+
+    if len_w2 == 0:
+        word2 = ['-' for i in range(len(word1))]
+        return word1, word2
+
+    greed = np.zeros([len_w1 + 1, len_w2 + 1], dtype=int)
+    # initialize the first column
+    for i in range(len_w1 + 1):
+        greed[i][0] = -i
+
+    # initialize the first row
+    for i in range(len_w2 + 1):
+        greed[0][i] = -i
+
+    # add missed numbers to the table
+    for i, sound1 in enumerate(word1):
+        for j, sound2 in enumerate(word2):
+            print(sound1, sound2)
+            top = greed[i][j + 1] - 1
+            left = greed[i + 1][j] - 1
+
+            if sound1 == sound2:
+                top_left = greed[i][j] + (sound1 == sound2)
+            else:
+                top_left = greed[i][j] - 1
+
+            greed[i + 1][j + 1] = max(top, left, top_left)
+            print(max(top, left, top_left))
+
+    # construct the best alignment
+    align1 = []
+    align2 = []
+    trace = len_w1, len_w2
+
+    while trace != (0, 0):
+        i = trace[0]
+        j = trace[1]
+
+        top = greed[i - 1][j]
+        left = greed[i][j - 1]
+        top_left = greed[i - 1][j - 1]
+
+        best = max(top, left, top_left)
+
+        if top_left == best:
+            align1 = [word1[i - 1]] + align1
+            align2 = [word2[j - 1]] + align2
+            trace = i - 1, j - 1
+        elif left == best:
+            align1 = ['-'] + align1
+            align2 = [word2[j - 1]] + align2
+            trace = i, j - 1
+        else:
+            align1 = [word1[i - 1]] + align1
+            align2 = ['-'] + align2
+            trace = i - 1, j
+
+    return align1, align2
 
 
 if __name__ == "__main__":
