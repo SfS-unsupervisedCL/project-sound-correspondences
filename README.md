@@ -22,37 +22,40 @@ Our research questions are:
 
 ## Method
 
-note: We decided to change from PMI-based one-to-one alignments of symbols to the decision-tree-based induction of correspondence rules based on phonetic features and contextual information (similar to Wettig et al. 2012) because we think that this might help us capture more complex correspondences. 
+Note: We decided to change from PMI-based one-to-one alignments of symbols to the decision-tree-based induction of correspondence rules based on phonetic features and contextual information (similar to Wettig et al. 2012) because we think that this might help us capture more complex correspondences. 
 
-data:
+Data:
 - see below. We will pick languages from language families that we are familiar with (Germanic, Slavic, Romance).
 
 preprocessing:
-- [x]  construct bilingual word list
+- [x] construct bilingual word list
 - [x] encode IPA symbols as collections of values for phonetic features
   - maybe like this:
   - [x] TSV file where more IPA characters and/or features can easily be added (first column: IPA character, subsequent columns: features)
   - [x] class for sound instances where fields store the values for the features
-    - the advantage of doing this instead of using feature dictionaries (eg. manner['b']='plosive') is that we can also use instances of this class during imputation & evalutation 
+    - the advantage of doing this instead of using feature dictionaries (eg. manner['b']='plosive') is that we can also use instances of this class during imputation & evalutation.
 - [ ] eliminate unlikely candidates for cognates
   - [x] write a modified version of the Levenshtein distance that computes the replacement costs based on the sounds' phonetic features
     - ie., if we have _n_ features, then each feature change costs _1/n_
     - we could consider giving different weights to different features
-    - for features with values that fall on a scale, we could even consider giving different weights to different changes
-  - is a NED of 0.5 a good threshold?
-- the encoding of phonetic features in Wettig et al. seems to be somewhat particular to Uralic languages
-  - 2 different vowel lengths should be enough
-  - +/- nasalization feature for vowels
-  - stress? (not included in the NorthEuraLex dataset)
-  - add palatalization to "secondary features of consonantal articulation" category
-  - make the features configurable so that it would be possible to add additional features (tone, airstream etc.)
+    - [ ] for features with values that fall on a scale, we could even consider giving different weights to different changes?
+  - [ ] determine a good threshold (NED = 0.5?)
 
 method (based on Wettig et al. 2012; see also slides in _doc_ folder):
 - [x] align word pairs on a symbol level
-  - [ ] use the phone distances for the alignment
-- [ ] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) (random forest)
+  - [ ] use the phone distances for the alignment (instead of vanilla Needleman-Wunsch)
+  - [ ] encode empty strings as phones
+  - [ ] prefix a special word-boundary phone to each word
+- [ ] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) 
   - [ ] easily + quickly identify previous vowel/consonant etc.
-  - [ ] look into scikit-learn and/or other ML libraries--Is there a library that we can use that builds the trees for us and that lets us transform trees into rule sets?
+  - [ ] for each phone in a word, determine corresponding phones for each position and create feature sets (e.g. _sourceLang\_itself\_voiced=true_, _targetLang\_prevConsonant\_manner=plosive_, etc.)
+  - [ ] for each level (i.e. _source_, _target_) and feature combination (e.g. _target\_manner_), create a set of labelled feature sets 
+  - [ ] use [sklearn's decision tree package](http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) to build one tree for each level-feature combination
+    - issues with sklearn's package:
+      - made for scalar, numerical features (not categorical ones, like most of ours)
+        - use a package like [sklearn's DictVectorizer](http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html)
+        - OR: directly transform the strings into integers (this way, we could also take advantage of the implicit scales that some of the features describe (e.g. vowel height, place of consonant articulation, etc.))
+      - exporting the rules from the trees is a bit complicated. It's possible to export the tree as dot file/graphviz tree in a PDF. It is possible to determine which nodes were queried in a decision path, and it's possible to find out which feature and threshold is associated with each node; this involves a lot of looking into the source code or obscure examples however. 
   - otherwise: build our own trees (we need question nodes, leaf nodes and a main method/class that creates the trees)
 - [ ] repeat until convergence
 
@@ -69,6 +72,15 @@ evaluation:
 - [ ] transform trees into rule sets
 - time permitting, we might be able to at least compute recall values for the generated rules (lit research!)
 - doing the literature research necessary for calculating precision/F1-score would be likely be extremely time-consuming
+
+## Notes
+
+- the encoding of phonetic features in Wettig et al. seems to be somewhat particular to Uralic languages
+  - 2 different vowel lengths should be enough
+  - +/- nasalization feature for vowels
+  - stress? (not included in the NorthEuraLex dataset)
+  - add palatalization to "secondary features of consonantal articulation" category
+  - make the features configurable so that it would be possible to add additional features (tone, airstream etc.)
 
 ## Relevant literature 
 
