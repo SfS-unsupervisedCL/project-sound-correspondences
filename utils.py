@@ -81,7 +81,7 @@ def lev_distance(w1, w2):
             current_row.append(min(top, left, top_left))
         previous_row = current_row
 
-    return previous_row[-1]
+    return previous_row[-1] / len(w1)
 
 
 def needleman_wunsch(word1, word2):
@@ -107,7 +107,7 @@ def needleman_wunsch(word1, word2):
     len_w1 = len(word1)
     len_w2 = len(word2)
 
-    if len_w1 > len_w2:
+    if len_w1 < len_w2:
         return needleman_wunsch(word2, word1)
 
     if len_w2 == 0:
