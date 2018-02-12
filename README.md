@@ -43,9 +43,9 @@ preprocessing:
 
 method (based on Wettig et al. 2012; see also slides in _doc_ folder):
 - [x] align word pairs on a symbol level
-  - [ ] use the phone distances for the alignment (instead of vanilla Needleman-Wunsch)
-  - [ ] encode empty strings as phones
-  - [ ] prefix a special word-boundary phone to each word
+  - [x] use the phone distances for the alignment (instead of vanilla Needleman-Wunsch)
+  - [x] encode empty strings as phones
+  - [x] prefix a special word-boundary phone to each word
 - [ ] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) 
   - [ ] easily + quickly identify previous vowel/consonant etc.
   - [ ] for each phone in a word, determine corresponding phones for each position and create feature sets (e.g. _sourceLang\_itself\_voiced=true_, _targetLang\_prevConsonant\_manner=plosive_, etc.)
