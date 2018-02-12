@@ -114,27 +114,29 @@ def needleman_wunsch(word1, word2):
         word2 = ['-' for i in range(len(word1))]
         return word1, word2
 
-    greed = np.zeros([len_w1 + 1, len_w2 + 1], dtype=int)
+    grid = np.zeros([len_w1 + 1, len_w2 + 1], dtype=float)
     # initialize the first column
     for i in range(len_w1 + 1):
-        greed[i][0] = -i
+        grid[i][0] = -i
 
     # initialize the first row
     for i in range(len_w2 + 1):
-        greed[0][i] = -i
+        grid[0][i] = -i
 
     # add missed numbers to the table
     for i, sound1 in enumerate(word1):
         for j, sound2 in enumerate(word2):
-            top = greed[i][j + 1] - 1
-            left = greed[i + 1][j] - 1
+            top = grid[i][j + 1] - 1
+            left = grid[i + 1][j] - 1
 
             if sound1 == sound2:
-                top_left = greed[i][j] + (sound1 == sound2)
+                top_left = grid[i][j] + (sound1 == sound2)
             else:
-                top_left = greed[i][j] - 1
+                top_left = grid[i][j] - to_phone(sound1).distance(to_phone(sound2))
 
-            greed[i + 1][j + 1] = max(top, left, top_left)
+            grid[i + 1][j + 1] = max(top, left, top_left)
+
+    print(grid)
 
     # construct the best alignment
     align1 = []
@@ -145,22 +147,22 @@ def needleman_wunsch(word1, word2):
         i = trace[0]
         j = trace[1]
 
-        top = greed[i - 1][j]
-        left = greed[i][j - 1]
-        top_left = greed[i - 1][j - 1]
+        top = grid[i - 1][j]
+        left = grid[i][j - 1]
+        top_left = grid[i - 1][j - 1]
 
         best = max(top, left, top_left)
 
         if top_left == best:
-            align1 = [word1[i - 1]] + align1
-            align2 = [word2[j - 1]] + align2
+            align1 = [to_phone(word1[i - 1])] + align1
+            align2 = [to_phone(word2[j - 1])] + align2
             trace = i - 1, j - 1
         elif left == best:
             align1 = ['-'] + align1
-            align2 = [word2[j - 1]] + align2
+            align2 = [to_phone(word2[j - 1])] + align2
             trace = i, j - 1
         else:
-            align1 = [word1[i - 1]] + align1
+            align1 = [to_phone(word1[i - 1])] + align1
             align2 = ['-'] + align2
             trace = i - 1, j
 
@@ -185,5 +187,8 @@ if __name__ == "__main__":
     print('t', to_phone('t'))
     print('t', 'd', to_phone('t').distance(to_phone('d')))
     print('t', 't', to_phone('t').distance(to_phone('t')))
-    print(needleman_wunsch(process_line('GATTACA'), (process_line('GCATGCU'))))
-    
+    print(needleman_wunsch(process_line('aba'), (process_line('apa'))))
+
+    result = needleman_wunsch(process_line('aba'), (process_line('apa')))
+    for i in result:
+        print(i)
