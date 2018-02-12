@@ -11,8 +11,6 @@ def read_ipa(ipa_file):
     with open(ipa_file, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
-            if line.startswith('#') or len(line) == 0:
-                continue
             # symbol,type,manner,place,voice,secondary,vertical,horizontal,rounding,length,nasalization
             # TODO make this dynamic instead?
             fields = line.split(',')
@@ -107,7 +105,7 @@ def needleman_wunsch(word1, word2):
     len_w1 = len(word1)
     len_w2 = len(word2)
 
-    if len_w1 < len_w2:
+    if len_w1 > len_w2:
         return needleman_wunsch(word2, word1)
 
     if len_w2 == 0:
@@ -158,19 +156,22 @@ def needleman_wunsch(word1, word2):
             align2 = [to_phone(word2[j - 1])] + align2
             trace = i - 1, j - 1
         elif left == best:
-            align1 = ['-'] + align1
+            align1 = [to_phone('*')] + align1
             align2 = [to_phone(word2[j - 1])] + align2
             trace = i, j - 1
         else:
             align1 = [to_phone(word1[i - 1])] + align1
-            align2 = ['-'] + align2
+            align2 = [to_phone('*')] + align2
             trace = i - 1, j
+
+    align1 = [to_phone('#')] + align1
+    align2 = [to_phone('#')] + align2
 
     return align1, align2
 
 
 if __name__ == "__main__":
-    ipa_symbols = read_ipa("preprocessing/ipa.csv")
+    ipa_symbols = read_ipa("preprocessing/ipa_numerical.csv")
     word = 'tʲɪt͡ʃʲeˑnʲijə'
     word_symbols = process_line(word)
     # ['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ', 'nʲ', 'i', 'j', 'ə']
@@ -189,6 +190,6 @@ if __name__ == "__main__":
     print('t', 't', to_phone('t').distance(to_phone('t')))
     print(needleman_wunsch(process_line('aba'), (process_line('apa'))))
 
-    result = needleman_wunsch(process_line('aba'), (process_line('apa')))
+    result = needleman_wunsch(process_line('apa'), (process_line('pa')))
     for i in result:
         print(i)
