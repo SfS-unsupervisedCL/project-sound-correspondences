@@ -50,6 +50,9 @@ class Phone(object):
         dist /= (len(self.__slots__) - 1)
         return dist
 
+    def equal(self, other):
+        return self.distance(other) == 0
+
     def features(self):
         return [self.sound_type, self.manner,
                 self.place, self.voice, self.secondary, self.vertical,
