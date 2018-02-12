@@ -1,9 +1,11 @@
 import numpy as np
 import copy
 from preprocessing.phon_inventory import process_line
+from preprocessing.transform_ipa import TransformIPA
 from phone import Phone
 
 ipa_symbols = dict()
+tipa = TransformIPA()
 
 
 def read_ipa(ipa_file):
@@ -16,12 +18,12 @@ def read_ipa(ipa_file):
             fields = line.split(',')
             assert len(fields) == 11
             symbol = fields[0]
-            phone = Phone(sound_type=fields[1],
-                          manner=fields[2], place=fields[3],
-                          voice=fields[4], secondary=fields[5],
-                          vertical=fields[6], horizontal=fields[7],
-                          rounding=fields[8], length=fields[9],
-                          nasalization=fields[10])
+            phone = Phone(sound_type=int(fields[1]),
+                          manner=int(fields[2]), place=int(fields[3]),
+                          voice=int(fields[4]), secondary=int(fields[5]),
+                          vertical=int(fields[6]), horizontal=int(fields[7]),
+                          rounding=int(fields[8]), length=int(fields[9]),
+                          nasalization=int(fields[10]))
             ipa_symbols[symbol] = phone
     return ipa_symbols
 
@@ -30,16 +32,14 @@ def to_phone(symbol):
     if len(symbol) == 1:
         return copy.deepcopy(ipa_symbols[symbol])
     phone = copy.deepcopy(ipa_symbols[symbol[0]])
-    print('symbol', symbol)
     if '͡' in symbol:
-        # TODO diphthong
-        phone.manner = 'affricate'
+        phone.manner = tipa.string2int('manner', 'affricate')
     if 'ʲ' in symbol:
-        phone.secondary = 'palatalized'
+        phone.secondary = tipa.string2int('secondary', 'palatalized')
     if 'ː' in symbol:
-        phone.length = 'long'
+        phone.length = tipa.string2int('length', 'long')
     elif 'ˑ' in symbol:
-        phone.length = 'half long'
+        phone.length = tipa.string2int('length', 'half-long')
     return phone
 
 
