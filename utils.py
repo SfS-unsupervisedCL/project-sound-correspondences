@@ -45,14 +45,14 @@ def to_phone(symbol):
 
 def lev_distance(w1, w2):
     """
-    Calculate the modified levenshtein distance using phonological information about sounds.
+    Calculate the normalized modified levenshtein distance using phonological information about sounds.
     
-    >>> lev_distance(['t', 'i'], ['t', 'a'])
-    0.1
     >>> lev_distance(['t', 'i'], ['d', 'i'])
-    0.3
+    0.05555555555555555
     >>> lev_distance(['t', 'i'], ['a', 'i'])
-    0.9
+    0.5
+    >>> lev_distance(['a', 't'], ['t', 'a'])
+    1.0
     
     :param w1: first word
     :type: [str]
@@ -86,14 +86,14 @@ def needleman_wunsch(word1, word2):
     """
     Implementation of the Needleman-Wunsch algorithm,
     which search for the optimal alignment of two sequences.
-    
-    >>> needleman_wunsch(['g', 'a', 't', 't', 'a', 'c', 'a'], ['g', 'c', 'a', 't', 'g', 'c', 'u'])
-    [['g', '-', 'a', 't', 't', 'a', 'c', 'a']
-     ['g', 'c', 'a', 't', '-', 'g', 'c', 'u']]
      
-    >>> needleman_wunsch(['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ'], ['tʲ', 'ɪ', 'eˑ'])
-    [['tʲ', 'ɪ', '-', 'eˑ']
-     ['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ']]
+    >>> needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
+    [[Phone(1 0 0 0 0 0 0 0 0 0), Phone(0 0 0 0 0 0 0 0 0 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)],
+     [Phone(1 0 0 0 0 0 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)]]
+     
+    The transformed numerical output above represents the following alignment:
+    [['#', 'a', 'p', 'a'],
+     ['#', '*', 'p', 'a']]
     
     :param word1: sound representation of the first word
     :type word1: list[str]
@@ -188,8 +188,8 @@ if __name__ == "__main__":
     print('t', to_phone('t'))
     print('t', 'd', to_phone('t').distance(to_phone('d')))
     print('t', 't', to_phone('t').distance(to_phone('t')))
-    print(needleman_wunsch(process_line('aba'), (process_line('apa'))))
+    print(needleman_wunsch(['a', 'p', 'a'], ['p', 'a']))
 
-    result = needleman_wunsch(process_line('apa'), (process_line('pa')))
+    result = needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
     for i in result:
         print(i)
