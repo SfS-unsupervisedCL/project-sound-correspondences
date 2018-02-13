@@ -136,8 +136,6 @@ def needleman_wunsch(word1, word2):
 
             grid[i + 1][j + 1] = max(top, left, top_left)
 
-    print(grid)
-
     # construct the best alignment
     align1 = []
     align2 = []
@@ -154,23 +152,67 @@ def needleman_wunsch(word1, word2):
         best = max(top, left, top_left)
 
         if top_left == best:
-            align1 = [to_phone(word1[i - 1])] + align1
-            align2 = [to_phone(word2[j - 1])] + align2
+            align1 = [word1[i - 1]] + align1
+            align2 = [word2[j - 1]] + align2
             trace = i - 1, j - 1
         elif left == best:
-            align1 = [to_phone('*')] + align1
-            align2 = [to_phone(word2[j - 1])] + align2
+            align1 = ['*'] + align1
+            align2 = [word2[j - 1]] + align2
             trace = i, j - 1
         else:
-            align1 = [to_phone(word1[i - 1])] + align1
-            align2 = [to_phone('*')] + align2
+            align1 = [word1[i - 1]] + align1
+            align2 = ['*'] + align2
             trace = i - 1, j
 
-    align1 = [to_phone('#')] + align1
-    align2 = [to_phone('#')] + align2
+    align1 = ['#'] + align1
+    align2 = ['#'] + align2
 
     return align1, align2
 
+
+def get_cognates(file, threshold=0.5):
+    """
+    Determine possible cognates using Normalized Levenshtein Distance.
+    Align pairs before applying NLD.
+    
+    :param file: directory of the file
+    :type file: str
+    :param threshold: argument for NLD
+    :type threshold: float
+    :return: 
+    """
+    with open(file) as f:
+        content = f.readlines()
+
+    cognates = []
+    not_cognates = []
+
+    for line in content:
+        # Important! This spaghetti code will be changed
+        line = line.replace('\ufeff', '')
+        line = line.replace(' ', '')
+        line = line.replace('|', '')
+        line = line.replace('-', '')
+        if 'ˈ' in line:
+            continue
+
+        word1, word2 = line[:-1].split(',')
+
+        word1 = process_line(word1)
+        word2 = process_line(word2)
+
+        # Such format of output is used only for tuning the threshold parameter and
+        # will be changed
+        word1, word2 = needleman_wunsch(word1, word2)
+        ld = lev_distance(word1, word2)
+        word1 = ''.join(word1[1:])
+        word2 = ''.join(word2[1:])
+        if ld < threshold:
+            cognates.append((word1, word2, round(ld, 2)))
+        else:
+            not_cognates.append((word1, word2, round(ld, 2)))
+
+    return cognates, not_cognates
 
 if __name__ == "__main__":
     ipa_symbols = read_ipa("preprocessing/ipa_numerical.csv")
@@ -195,3 +237,7 @@ if __name__ == "__main__":
     result = needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
     for i in result:
         print(i)
+
+    cogn, n_cogn = get_cognates('preprocessing/deu-swe-all.csv', 0.5)
+    for c in cogn:
+        print(c)

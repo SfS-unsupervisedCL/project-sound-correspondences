@@ -47,7 +47,7 @@ def process_line(line):
         if s == '͡':
             symbols.append(symbols.pop() + line[symbol_idx:symbol_idx + 2])
             symbol_idx += 1
-        elif s in 'ːˑʲ':
+        elif s in 'ːˑʲ̯':
             symbols.append(symbols.pop() + s)
         else:
             symbols.append(s)
