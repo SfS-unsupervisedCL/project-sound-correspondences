@@ -1,3 +1,5 @@
+import preprocessing.transform_ipa as tipa
+
 class Phone(object):
     """A class storing phonetic information about phone(me)s."""
     __slots__ = 'sound_type', 'manner', 'place', 'voice', 'secondary', 'vertical', 'horizontal', 'rounding', 'length', 'nasalization'
@@ -5,24 +7,32 @@ class Phone(object):
     def __init__(
             self, sound_type,
             manner, place, voice, secondary,
-            vertical, horizontal, rounding,
-            length, nasalization):
-        self.sound_type = sound_type  # 'v', 'c', 'dot', or 'word boundary'
+            length, vertical, horizontal,
+            rounding, nasalization):
+        self.sound_type = sound_type
         self.manner = manner
         self.place = place
         self.voice = voice
         self.secondary = secondary
+        self.length = length
         self.vertical = vertical
         self.horizontal = horizontal
         self.rounding = rounding
-        self.length = length
         self.nasalization = nasalization
 
     def __repr__(self):
-        return "{}({} {} {} {} {} {} {} {} {} {})".format(
-            self.__class__.__name__, self.sound_type, self.manner,
-            self.place, self.voice, self.secondary, self.vertical,
-            self.horizontal, self.rounding, self.length, self.nasalization)
+        return "{}({}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(
+            self.__class__.__name__,
+            tipa.int2string('sound_type', self.sound_type),
+            tipa.int2string('manner', self.manner),
+            tipa.int2string('place', self.place),
+            tipa.int2string('voice', self.voice),
+            tipa.int2string('secondary', self.secondary),
+            tipa.int2string('length', self.length),
+            tipa.int2string('vertical', self.vertical),
+            tipa.int2string('horizontal', self.horizontal),
+            tipa.int2string('rounding', self.rounding),
+            tipa.int2string('nasalization', self.nasalization))
 
     def distance(self, other):
         # TODO tweak the slots to allow for iteration?

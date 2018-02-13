@@ -1,34 +1,36 @@
 import numpy as np
 import copy
 from preprocessing.phon_inventory import process_line
-from preprocessing.transform_ipa import TransformIPA
+import preprocessing.transform_ipa as tipa
 from phone import Phone
 
 ipa_symbols = dict()
-tipa = TransformIPA()
 
 
 def read_ipa(ipa_file):
+    """
+    Extracts the information contained in the CSV file created by
+    preprocessing.transform_ipa.transform_ipa.
+    """
     ipa_symbols = dict()
     with open(ipa_file, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
-            # symbol,type,manner,place,voice,secondary,vertical,horizontal,rounding,length,nasalization
-            # TODO make this dynamic instead?
             fields = line.split(',')
             assert len(fields) == 11
             symbol = fields[0]
             phone = Phone(sound_type=int(fields[1]),
                           manner=int(fields[2]), place=int(fields[3]),
                           voice=int(fields[4]), secondary=int(fields[5]),
-                          vertical=int(fields[6]), horizontal=int(fields[7]),
-                          rounding=int(fields[8]), length=int(fields[9]),
+                          length=int(fields[6]), vertical=int(fields[7]),
+                          horizontal=int(fields[8]), rounding=int(fields[9]),
                           nasalization=int(fields[10]))
             ipa_symbols[symbol] = phone
     return ipa_symbols
 
 
 def to_phone(symbol):
+    """Transforms an IPA symbol into an instance of phone.Phone."""
     if len(symbol) == 1:
         return copy.deepcopy(ipa_symbols[symbol])
     phone = copy.deepcopy(ipa_symbols[symbol[0]])

@@ -1,4 +1,4 @@
-﻿symbol,type,manner,place,voice,secondary,length,vertical,horizontal,rounding,nasalization
+﻿symbol,sound_type,manner,place,voice,secondary,length,vertical,horizontal,rounding,nasalization
 *,dot,,,,,,,,,
 #,word boundary,,,,,,,,,
 a,vowel,,,,,normal,open,front,unrounded,
