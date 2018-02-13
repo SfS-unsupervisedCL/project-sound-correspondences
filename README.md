@@ -39,6 +39,7 @@ preprocessing:
     - ie., if we have _n_ features, then each feature change costs _1/n_
     - we could consider giving different weights to different features
     - [ ] for features with values that fall on a scale, we could even consider giving different weights to different changes?
+  - [ ] write a method that take list_of_pairs and threshold_value as arguments and return the possible cognates
   - [ ] determine a good threshold (NED = 0.5?)
 
 method (based on Wettig et al. 2012; see also slides in _doc_ folder):
@@ -53,6 +54,7 @@ method (based on Wettig et al. 2012; see also slides in _doc_ folder):
   - [ ] use [sklearn's decision tree package](http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) to build one tree for each level-feature combination
     - issues with sklearn's package:
       - made for scalar, numerical features (not categorical ones, like most of ours)
+      - [ ] write a method generate_instances(levels, positions, features, n_samples) that returns a matrix of size (n_samples x n_features) and a parallel list[str] which contains a list of all the features types
         - use a package like [sklearn's DictVectorizer](http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html)
         - OR: directly transform the strings into integers (this way, we could also take advantage of the implicit scales that some of the features describe (e.g. vowel height, place of consonant articulation, etc.))
       - exporting the rules from the trees is a bit complicated. It's possible to export the tree as dot file/graphviz tree in a PDF. It is possible to determine which nodes were queried in a decision path, and it's possible to find out which feature and threshold is associated with each node; this involves a lot of looking into the source code or obscure examples however. 
