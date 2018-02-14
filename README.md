@@ -34,13 +34,45 @@ preprocessing:
   - [x] TSV file where more IPA characters and/or features can easily be added (first column: IPA character, subsequent columns: features)
   - [x] class for sound instances where fields store the values for the features
     - the advantage of doing this instead of using feature dictionaries (eg. manner['b']='plosive') is that we can also use instances of this class during imputation & evalutation.
-- [ ] eliminate unlikely candidates for cognates
+- [x] eliminate unlikely candidates for cognates
   - [x] write a modified version of the Levenshtein distance that computes the replacement costs based on the sounds' phonetic features
     - ie., if we have _n_ features, then each feature change costs _1/n_
     - we could consider giving different weights to different features
     - [ ] for features with values that fall on a scale, we could even consider giving different weights to different changes?
-  - [ ] write a method that take list_of_pairs and threshold_value as arguments and return the possible cognates
+  - [x] write a method that take list_of_pairs and threshold_value as arguments and return the possible cognates
   - [ ] determine a good threshold (NED = 0.5?)
+
+the first 10 potential cognates determined by ```utils.get_cognates(file='preprocessing/deu-swe-all.csv', threshold=0.5)```:
+- (```#``` is the initial word boundary; ```*``` is the empty string (used for insertion/deletion))
+- the format is ```(German, Swedish, edit distance)```
+
+```
+(['#', 'a', 'ʊ̯', 'ɡ', 'ə'], ['#', 'øː', '*', 'ɡ', 'a'], 0.29)
+(['#', 'oː', '*', 'ɐ̯'], ['#', 'œː', 'r', 'a'], 0.36)
+(['#', 'n', 'aː', 'z', 'ə'], ['#', 'n', 'ɛː', 's', 'a'], 0.09)
+(['#', 'm', 'ʊ', 'n', 't'], ['#', 'm', 'ɵ', 'n', '*'], 0.24)
+(['#', 't͡s', 'aː', 'n', '*'], ['#', 't', 'a', 'nː', 'd'], 0.27)
+(['#', 't͡s', 'ʊ', 'ŋ', 'ə'], ['#', 't', 'ɵ', 'ŋː', 'a'], 0.13)
+(['#', 'l', 'ɪ', 'p', 'ə'], ['#', 'l', 'ɛ', 'pː', '*'], 0.27)
+(['#', 'v', 'a', 'ŋ', 'ə'], ['#', 'ɕ', 'ɪ', 'nː', 'd'], 0.33)
+(['#', 'ɡ', 'ə', 'z', '*', 'ɪ', 'ç', 't', '*'], ['#', '*', 'a', 'nː', 's', 'ɪ', 'k', 't', 'ə'], 0.41)
+(['#', 'h', 'aː', 'ɐ̯'], ['#', 'h', 'oː', 'r'], 0.31)
+```
+
+The same for ```utils.get_cognates(file='preprocessing/rus-ukr-all.csv', threshold=0.5)```:
+
+```
+(['#', '*', 'uˑ', 'x', 'ə'], ['#', 'w', 'u', 'x', 'ɔ'], 0.27)
+(['#', 'n', 'ɔˑ', 's'], ['#', 'nʲ', 'i', 's'], 0.11)
+(['#', 'r', 'ɔˑ', 't'], ['#', 'r', 'ɔ', 't'], 0.03)
+(['#', 'z', 'uˑ', 'p'], ['#', 'z', 'u', 'b'], 0.06)
+(['#', 'j', 'ɐ', 'z', 'ɨˑ', 'k'], ['#', 'j', 'ɑ', 'z', 'ɪ', 'k'], 0.09)
+(['#', 'ɡ', 'u', 'b', 'aˑ'], ['#', 'ɦ', 'u', 'b', 'ɑ'], 0.09)
+(['#', 'ʃʲː', '*', 'ɪ', 'k', 'aˑ'], ['#', 'ʂ', 'ʈ͡ʂ', 'ɔ', 'k', 'ɑ'], 0.3)
+(['#', 'ɫ', 'ɔˑ', 'p'], ['#', 'l', 'ɔ', 'b'], 0.11)
+(['#', 'v', 'ɔˑ', 'ɫ', 'ə', 's', '*'], ['#', 'w', 'ɔ', 'l', 'ɔ', 'sʲː', 'ɑ'], 0.3)
+(['#', 'v', 'ɔˑ', 'ɫ', 'ə', 's', 'ɨ'], ['#', 'w', 'ɔ', 'l', 'ɔ', 'sʲː', 'ɑ'], 0.19)
+```
 
 method (based on Wettig et al. 2012; see also slides in _doc_ folder):
 - [x] align word pairs on a symbol level
@@ -54,9 +86,9 @@ method (based on Wettig et al. 2012; see also slides in _doc_ folder):
   - [ ] use [sklearn's decision tree package](http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) to build one tree for each level-feature combination
     - issues with sklearn's package:
       - made for scalar, numerical features (not categorical ones, like most of ours)
-      - [ ] write a method generate_instances(levels, positions, features, n_samples) that returns a matrix of size (n_samples x n_features) and a parallel list[str] which contains a list of all the features types
+      - [x] write a method generate_instances(levels, positions, features, n_samples) that returns a matrix of size (n_samples x n_features) and a parallel list[str] which contains a list of all the features types
         - use a package like [sklearn's DictVectorizer](http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html)
-        - OR: directly transform the strings into integers (this way, we could also take advantage of the implicit scales that some of the features describe (e.g. vowel height, place of consonant articulation, etc.))
+        - [x] OR: directly transform the strings into integers (this way, we could also take advantage of the implicit scales that some of the features describe (e.g. vowel height, place of consonant articulation, etc.))
       - exporting the rules from the trees is a bit complicated. It's possible to export the tree as dot file/graphviz tree in a PDF. It is possible to determine which nodes were queried in a decision path, and it's possible to find out which feature and threshold is associated with each node; this involves a lot of looking into the source code or obscure examples however. 
   - otherwise: build our own trees (we need question nodes, leaf nodes and a main method/class that creates the trees)
 - [ ] repeat until convergence
@@ -114,12 +146,8 @@ more:
 ## Available data, tools, resources
 
 Data:
-- [NorthEuraLex](http://northeuralex.org/): a database containing wordlists for many languages spoken in Northern Eurasia. The wordlists consist of translations of >1.000 concepts. The words have been transcribed into IPA.
+- [NorthEuraLex](http://northeuralex.org/): a database containing wordlists for many languages spoken in Northern Eurasia. The wordlists consist of translations of >1.000 concepts. The words have been transcribed into IPA. _Johannes Dellert and Gerhard Jäger (eds.). 2017. NorthEuraLex (version 0.9)._
 
-Tools:
-- [nwalign 0.3.1](https://pypi.python.org/pypi/nwalign/?): Needleman-Wunsch global sequence alignment. As long as it uses cython and numpy it is also a very efficient tool.
-- [python-Levenshtein 0.12.0](https://pypi.python.org/pypi/python-Levenshtein/0.12.0): Python extension for computing string edit distances and similarities. Uses Python C.
-- [editdistance 0.4](https://pypi.python.org/pypi/editdistance): One more implementation of Levenshtein distance.
 
 ## Project members
 

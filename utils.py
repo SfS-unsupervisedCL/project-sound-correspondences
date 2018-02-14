@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+import re
 from preprocessing.phon_inventory import process_line
 import preprocessing.transform_ipa as tipa
 from phone import Phone
@@ -108,7 +109,8 @@ def needleman_wunsch(word1, word2):
     len_w2 = len(word2)
 
     if len_w1 > len_w2:
-        return needleman_wunsch(word2, word1)
+        align2, align1 = needleman_wunsch(word2, word1)
+        return align1, align2
 
     if len_w2 == 0:
         word2 = ['-' for i in range(len(word1))]
@@ -181,32 +183,23 @@ def get_cognates(file, threshold=0.5):
     :type threshold: float
     :return: 
     """
-    with open(file) as f:
+    with open(file, encoding='utf-8') as f:
         content = f.readlines()
 
     cognates = []
     not_cognates = []
 
     for line in content:
-        # Important! This spaghetti code will be changed
-        line = line.replace('\ufeff', '')
-        line = line.replace(' ', '')
-        line = line.replace('|', '')
-        line = line.replace('-', '')
-        if 'ˈ' in line:
-            continue
+        line = re.sub(u'[\uFEFF\s|ˈˌ-]', '', line)
 
-        word1, word2 = line[:-1].split(',')
-
+        word1, word2 = line.split(',')
         word1 = process_line(word1)
         word2 = process_line(word2)
 
-        # Such format of output is used only for tuning the threshold parameter and
-        # will be changed
         word1, word2 = needleman_wunsch(word1, word2)
         ld = lev_distance(word1, word2)
-        word1 = ''.join(word1[1:])
-        word2 = ''.join(word2[1:])
+        # word1 = ''.join(word1[1:])
+        # word2 = ''.join(word2[1:])
         if ld < threshold:
             cognates.append((word1, word2, round(ld, 2)))
         else:
@@ -238,6 +231,12 @@ if __name__ == "__main__":
     for i in result:
         print(i)
 
+    print("cognates")
     cogn, n_cogn = get_cognates('preprocessing/deu-swe-all.csv', 0.5)
     for c in cogn:
+        print(c)
+    print()
+    print()
+    print("non-cognates")
+    for c in n_cogn:
         print(c)
