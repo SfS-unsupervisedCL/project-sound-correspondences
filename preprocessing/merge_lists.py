@@ -23,7 +23,7 @@ def read_file(file, concepts):
 def print_file(lang1, lang2):
 	n_concepts = len(concepts_1)
 	assert(n_concepts == len(concepts_2))
-	file = lang1 + '-' + lang2 + '-all.csv'
+	file = "../data/" + lang1 + '-' + lang2 + '-all.csv'
 	with open(file, 'w', encoding='utf-8') as f:
 		f.write('concept_id' + ',' + lang1 + ',' + lang2 + '\n')
 		for concept in range(n_concepts):
