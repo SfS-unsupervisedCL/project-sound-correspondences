@@ -43,6 +43,8 @@ def to_phone(symbol):
         phone.length = tipa.string2int('length', 'long')
     elif 'ˑ' in symbol:
         phone.length = tipa.string2int('length', 'half-long')
+    elif '̯' in symbol:
+        phone.length = tipa.string2int('secondary', 'non-syllabic')
     return phone
 
 
@@ -183,8 +185,8 @@ def get_cognates(file, threshold=0.5):
     :type threshold: float
     :return: 
     """
-    with open(file, encoding='utf-8') as f:
-        content = f.readlines()
+    with open(file, 'r', encoding='utf-8') as f:
+        content = f.readlines()[1:]
 
     cognates = []
     not_cognates = []
@@ -192,7 +194,8 @@ def get_cognates(file, threshold=0.5):
     for line in content:
         line = re.sub(u'[\uFEFF\s|ˈˌ-]', '', line)
 
-        word1, word2 = line.split(',')
+        concept_id, word1, word2 = line.split(',')
+        concept_id = int(concept_id)
         word1 = process_line(word1)
         word2 = process_line(word2)
 
@@ -200,12 +203,29 @@ def get_cognates(file, threshold=0.5):
         ld = lev_distance(word1, word2)
         # word1 = ''.join(word1[1:])
         # word2 = ''.join(word2[1:])
+        entry = (concept_id,word1,word2,round(ld, 2))
         if ld < threshold:
-            cognates.append((word1, word2, round(ld, 2)))
+            cognates.append(entry)
         else:
-            not_cognates.append((word1, word2, round(ld, 2)))
+            not_cognates.append(entry)
 
     return cognates, not_cognates
+
+
+def print_cognates(file, threshold=0.5):
+    cognates, non_cognates = get_cognates(file, threshold)
+    file_cog = re.sub('all', 'cognates', file)
+    file_non_cog = re.sub('all', 'non-cognates', file)
+
+    with open(file, 'r', encoding='utf-8') as f:
+        header = f.readlines()[0]
+    header = header[:-1] + ',distance\n'
+
+    for file, entries in zip([file_cog, file_non_cog], [cognates, non_cognates]):
+        with open(file, 'w', encoding='utf-8') as f:
+            f.write(header)
+            for entry in entries:
+                f.write(str(entry)[1:-1] + '\n')
 
 if __name__ == "__main__":
     ipa_symbols = read_ipa("preprocessing/ipa_numerical.csv")
@@ -225,18 +245,12 @@ if __name__ == "__main__":
     print('t', to_phone('t'))
     print('t', 'd', to_phone('t').distance(to_phone('d')))
     print('t', 't', to_phone('t').distance(to_phone('t')))
+    print('t', 'm', to_phone('t').distance(to_phone('m')))
     print(needleman_wunsch(['a', 'p', 'a'], ['p', 'a']))
 
     result = needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
     for i in result:
         print(i)
 
-    print("cognates")
-    cogn, n_cogn = get_cognates('preprocessing/deu-swe-all.csv', 0.5)
-    for c in cogn:
-        print(c)
-    print()
-    print()
-    print("non-cognates")
-    for c in n_cogn:
-        print(c)
+    print_cognates('preprocessing/deu-swe-all.csv', 0.4)
+    print_cognates('preprocessing/rus-ukr-all.csv', 0.4)

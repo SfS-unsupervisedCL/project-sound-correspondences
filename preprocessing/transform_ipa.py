@@ -21,7 +21,7 @@ place = ['', 'glottal', 'pharyngeal', 'uvular', 'velar', 'palatal',
          'dental', 'labiodental', 'bilabial']
 voice = ['', 'voiceless', 'voiced']
 secondary = ['', 'pharyngealized', 'velarized', 'palatalized',
-             'labialized']
+             'labialized', 'non-syllabic']
 # consonant + vowel
 length = ['', 'normal', 'half-long', 'long']
 # vowel articulation
