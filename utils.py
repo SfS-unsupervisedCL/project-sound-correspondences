@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 import re
+import pandas
 from preprocessing.phon_inventory import process_line
 import preprocessing.transform_ipa as tipa
 from phone import Phone
@@ -87,7 +88,7 @@ def lev_distance(w1, w2):
     return previous_row[-1] / len(w1)
 
 
-def needleman_wunsch(word1, word2):
+def needleman_wunsch(word1, word2, print_matrix=False):
     """
     Implementation of the Needleman-Wunsch algorithm,
     which search for the optimal alignment of two sequences.
@@ -104,6 +105,8 @@ def needleman_wunsch(word1, word2):
     :type word1: list[str]
     :param word2: sound representation of the second word
     :type word2: list[str]
+    :param print_matrix:
+    :type print_matrix: bool
     :return: a pair of aligned sound representations of two words
     :rtype: tuple(str, str)
     """
@@ -111,7 +114,7 @@ def needleman_wunsch(word1, word2):
     len_w2 = len(word2)
 
     if len_w1 > len_w2:
-        align2, align1 = needleman_wunsch(word2, word1)
+        align2, align1 = needleman_wunsch(word2, word1, print_matrix)
         return align1, align2
 
     if len_w2 == 0:
@@ -167,6 +170,12 @@ def needleman_wunsch(word1, word2):
             align1 = [word1[i - 1]] + align1
             align2 = ['*'] + align2
             trace = i - 1, j
+
+    if print_matrix:
+        column_labels = ["0"] + word2
+        row_labels = ["0"] + word1
+        df = pandas.DataFrame(grid, columns=column_labels, index=row_labels)
+        print(df)
 
     align1 = ['#'] + align1
     align2 = ['#'] + align2
