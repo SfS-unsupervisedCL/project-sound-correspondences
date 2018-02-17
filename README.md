@@ -40,7 +40,7 @@ Preprocessing:
   - [x] write a method that take list_of_pairs and threshold_value as arguments and return the possible cognates
   - [ ] determine a good threshold (NED = 0.5?)
 
-The first 10 potential cognates determined by ```utils.get_cognates(file='preprocessing/deu-swe-all.csv', threshold=0.5)```:
+The first 10 potential cognates determined by ```utils.get_cognates(file='data/deu-swe-all.csv', threshold=0.5)```:
 - ```#``` is the initial word boundary; ```*``` is the empty string (used for insertion/deletion).
 - The format is ```(German, Swedish, edit distance)```.
 
@@ -57,7 +57,7 @@ The first 10 potential cognates determined by ```utils.get_cognates(file='prepro
 (['#', 'h', 'aː', 'ɐ̯'], ['#', 'h', 'oː', 'r'], 0.31)
 ```
 
-The same for ```utils.get_cognates(file='preprocessing/rus-ukr-all.csv', threshold=0.5)```:
+The same for ```utils.get_cognates(file='data/rus-ukr-all.csv', threshold=0.5)```:
 - ```(Russian, Ukrainian, edit distance)```
 
 ```
