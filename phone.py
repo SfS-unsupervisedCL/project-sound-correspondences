@@ -37,11 +37,15 @@ class Phone(object):
     def distance(self, other):
         if self.sound_type != other.sound_type:
             return 1
+        if self == other:
+            return 0
 
         dist = 0
+        max_dist = 1
         sound_type = tipa.int2string('sound_type', self.sound_type)
 
         if sound_type == 'consonant':
+            max_dist = 5
             if self.manner != other.manner:
                 manner_self = tipa.int2string('manner', self.manner)
                 manner_other = tipa.int2string('manner', other.manner)
@@ -68,6 +72,7 @@ class Phone(object):
                 dist += 1
 
         if sound_type == 'vowel':
+            max_dist = 6
             if self.vertical != other.vertical:
                 if abs(self.vertical - other.vertical) < 3:
                     dist += 0.5
@@ -80,9 +85,10 @@ class Phone(object):
                     dist += 1
             if self.nasalization != other.nasalization:
                 dist += 1
+            if self.rounding != other.rounding:
+                dist += 1
 
-        # there are 5 consonant features and 5 vowel features
-        dist /= 5
+        dist /= max_dist
         return dist
 
     def equal(self, other):

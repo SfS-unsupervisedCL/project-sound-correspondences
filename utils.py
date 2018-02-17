@@ -113,6 +113,11 @@ def needleman_wunsch(word1, word2, print_matrix=False):
     len_w1 = len(word1)
     len_w2 = len(word2)
 
+    # transition scores:
+    # gap (insertion/deletion): -1
+    # (mis)match: if phonetic distance > 0.5 then -1 (mismatch)
+    gap_score = -1
+
     if len_w1 > len_w2:
         align2, align1 = needleman_wunsch(word2, word1, print_matrix)
         return align1, align2
@@ -121,64 +126,82 @@ def needleman_wunsch(word1, word2, print_matrix=False):
         word2 = ['-' for i in range(len(word1))]
         return word1, word2
 
-    grid = np.zeros([len_w1 + 1, len_w2 + 1], dtype=float)
+    score_grid = np.zeros([len_w1 + 1, len_w2 + 1], dtype=float)
+    trace_grid = [[] for i in range(len_w1 + 1)]
+
     # initialize the first column
+    trace_grid[0] = ['x']
     for i in range(len_w1 + 1):
-        grid[i][0] = -i
+        score_grid[i][0] = i * gap_score
+        if i > 0:
+            trace_grid[i].append('top')
+            for j in range(len_w2):
+                trace_grid[i].append('')
 
     # initialize the first row
     for i in range(len_w2 + 1):
-        grid[0][i] = -i
+        score_grid[0][i] = i * gap_score
+    trace_grid[0] += ['left' for i in range(len_w2)]
 
-    # add missed numbers to the table
+    # fill in the table
     for i, sound1 in enumerate(word1):
         for j, sound2 in enumerate(word2):
-            top = grid[i][j + 1] - 1
-            left = grid[i + 1][j] - 1
+            top = score_grid[i][j + 1] + gap_score
+            left = score_grid[i + 1][j] + gap_score
 
-            if sound1 == sound2:
-                top_left = grid[i][j] + (sound1 == sound2)
+            phone_dist = to_phone(sound1).distance(to_phone(sound2))
+            if phone_dist < 0.5:
+                top_left = score_grid[i][j] + 2 - phone_dist
             else:
-                top_left = grid[i][j] - to_phone(sound1).distance(to_phone(sound2))
+                top_left = score_grid[i][j] - 1
 
-            grid[i + 1][j + 1] = max(top, left, top_left)
+            scores = {'top': top, 'left': left, 'top_left': top_left}
+            max_score = max(scores.values())
+            score_grid[i + 1][j + 1] = max_score
+            delta = 0.0000001
+            traces = [trace for trace, score in scores.items() if abs(max_score - score) < delta]
+            # for now, let's only generate one alignment, even if there are several ones possible
+            # we prioritize (mis)matches over insertions/deletions
+            trace = traces[0]
+            if len(traces) > 1:
+                if abs(max_score - top_left) < delta:
+                    trace = 'top_left'
+
+            trace_grid[i + 1][j + 1] = trace
 
     # construct the best alignment
     align1 = []
     align2 = []
-    trace = len_w1, len_w2
+    i = len_w1
+    j = len_w2
 
-    while trace != (0, 0):
-        i = trace[0]
-        j = trace[1]
-
-        top = grid[i - 1][j]
-        left = grid[i][j - 1]
-        top_left = grid[i - 1][j - 1]
-
-        best = max(top, left, top_left)
-
-        if top_left == best:
+    while i > 0 or j > 0:
+        trace = trace_grid[i][j]
+        if trace == 'top_left':
             align1 = [word1[i - 1]] + align1
             align2 = [word2[j - 1]] + align2
-            trace = i - 1, j - 1
-        elif left == best:
+            i -= 1
+            j -= 1
+        elif trace == 'left':
             align1 = ['*'] + align1
             align2 = [word2[j - 1]] + align2
-            trace = i, j - 1
-        else:
+            j -= 1
+        else: # trace == 'top'
             align1 = [word1[i - 1]] + align1
             align2 = ['*'] + align2
-            trace = i - 1, j
+            i -= 1
+
+    align1 = ['#'] + align1
+    align2 = ['#'] + align2
 
     if print_matrix:
         column_labels = ["0"] + word2
         row_labels = ["0"] + word1
-        df = pandas.DataFrame(grid, columns=column_labels, index=row_labels)
+        df = pandas.DataFrame(score_grid, columns=column_labels, index=row_labels)
         print(df)
-
-    align1 = ['#'] + align1
-    align2 = ['#'] + align2
+        print()
+        df = pandas.DataFrame(trace_grid, columns=column_labels, index=row_labels)
+        print(df)
 
     return align1, align2
 
@@ -255,9 +278,13 @@ if __name__ == "__main__":
     print('t', 'd', to_phone('t').distance(to_phone('d')))
     print('t', 't', to_phone('t').distance(to_phone('t')))
     print('t', 'm', to_phone('t').distance(to_phone('m')))
-    print(needleman_wunsch(['a', 'p', 'a'], ['p', 'a']))
+    # print(needleman_wunsch(['a', 'p', 'a'], ['p', 'a']))
 
     result = needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
+    for i in result:
+        print(i)
+
+    result = needleman_wunsch(['h', 'ɛ', 'ɐ̯', 'b', 's', 't'], ['h', 'ø', 'sː', 't'], print_matrix=True)
     for i in result:
         print(i)
 
