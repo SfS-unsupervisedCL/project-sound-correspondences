@@ -337,5 +337,5 @@ if __name__ == "__main__":
     for i in result:
         print(i)
 
-    # print_cognates('data/deu-swe-all.csv', 0.4)
-    # print_cognates('data/rus-ukr-all.csv', 0.4)
+    # print_cognates('../data/deu-swe-all.csv', 0.4)
+    # print_cognates('../data/rus-ukr-all.csv', 0.4)
