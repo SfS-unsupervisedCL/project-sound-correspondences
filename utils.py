@@ -51,15 +51,16 @@ def to_phone(symbol):
 
 def lev_distance(w1, w2):
     """
-    Calculate the normalized modified levenshtein distance using phonological information about sounds.
-    
+    Calculate the normalized modified levenshtein distance
+    using phonological information about sounds.
+
     >>> lev_distance(['t', 'i'], ['d', 'i'])
     0.05555555555555555
     >>> lev_distance(['t', 'i'], ['a', 'i'])
     0.5
     >>> lev_distance(['a', 't'], ['t', 'a'])
     1.0
-    
+
     :param w1: first word
     :type: [str]
     :param w2: second word
@@ -77,54 +78,61 @@ def lev_distance(w1, w2):
 
     for i, symbol1 in enumerate(w1):
         current_row = [i + 1]
-
         for j, symbol2 in enumerate(w2):
             top = previous_row[j + 1] + 1
             left = current_row[j] + 1
-            top_left = previous_row[j] + to_phone(symbol1).distance(to_phone(symbol2))
+            dist = to_phone(symbol1).distance(to_phone(symbol2))
+            top_left = previous_row[j] + dist
             current_row.append(min(top, left, top_left))
         previous_row = current_row
 
     return previous_row[-1] / len(w1)
 
 
-def needleman_wunsch(word1, word2, print_matrix=False):
+def needleman_wunsch(word1, word2, return_phones=False, print_matrix=False):
     """
     Implementation of the Needleman-Wunsch algorithm,
     which search for the optimal alignment of two sequences.
-     
-    >>> needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
-    [[Phone(1 0 0 0 0 0 0 0 0 0), Phone(0 0 0 0 0 0 0 0 0 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)],
-     [Phone(1 0 0 0 0 0 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)]]
-     
+
+    >>> needleman_wunsch(['a', 'p', 'a'], ['p', 'a'], False, False)
+    [[Phone(1 0 0 0 0 0 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)],
+     [Phone(1 0 0 0 0 0 0 0 0 0), Phone(0 0 0 0 0 0 0 0 0 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)]]
+
     The transformed numerical output above represents the following alignment:
     [['#', 'a', 'p', 'a'],
      ['#', '*', 'p', 'a']]
-    
+
     :param word1: sound representation of the first word
     :type word1: list[str]
     :param word2: sound representation of the second word
     :type word2: list[str]
     :param print_matrix:
+    :type return_phones: bool
+    :param return_phones: return a list of phones (True) or strings (False)
     :type print_matrix: bool
     :return: a pair of aligned sound representations of two words
     :rtype: tuple(str, str)
     """
     len_w1 = len(word1)
     len_w2 = len(word2)
+    if len_w1 > len_w2:
+        align2, align1 = needleman_wunsch(
+            word2, word1, return_phones, print_matrix
+            )
+        return align1, align2
 
     # transition scores:
     # gap (insertion/deletion): -1
     # (mis)match: if phonetic distance > 0.5 then -1 (mismatch)
+    # else 2 - distance (match)
     gap_score = -1
 
-    if len_w1 > len_w2:
-        align2, align1 = needleman_wunsch(word2, word1, print_matrix)
-        return align1, align2
-
-    if len_w2 == 0:
-        word2 = ['-' for i in range(len(word1))]
-        return word1, word2
+    if print_matrix:
+        word1_str = word1
+        word2_str = word2
+    if return_phones:
+        word1 = [to_phone(sound) for sound in word1]
+        word2 = [to_phone(sound) for sound in word2]
 
     score_grid = np.zeros([len_w1 + 1, len_w2 + 1], dtype=float)
     trace_grid = [[] for i in range(len_w1 + 1)]
@@ -149,7 +157,11 @@ def needleman_wunsch(word1, word2, print_matrix=False):
             top = score_grid[i][j + 1] + gap_score
             left = score_grid[i + 1][j] + gap_score
 
-            phone_dist = to_phone(sound1).distance(to_phone(sound2))
+            if return_phones:
+                phone_dist = sound1.distance(sound2)
+            else:
+                phone_dist = to_phone(sound1).distance(to_phone(sound2))
+
             if phone_dist < 0.5:
                 top_left = score_grid[i][j] + 2 - phone_dist
             else:
@@ -158,13 +170,13 @@ def needleman_wunsch(word1, word2, print_matrix=False):
             scores = {'top': top, 'left': left, 'top_left': top_left}
             max_score = max(scores.values())
             score_grid[i + 1][j + 1] = max_score
-            delta = 0.0000001
-            traces = [trace for trace, score in scores.items() if abs(max_score - score) < delta]
-            # for now, let's only generate one alignment, even if there are several ones possible
-            # we prioritize (mis)matches over insertions/deletions
+            traces = [k for k, v in scores.items() if equals(max_score, v)]
+            # For now, let's only generate one alignment,
+            # even if there are several ones possible.
+            # We prioritize (mis)matches over insertions/deletions.
             trace = traces[0]
             if len(traces) > 1:
-                if abs(max_score - top_left) < delta:
+                if equals(max_score, top_left):
                     trace = 'top_left'
 
             trace_grid[i + 1][j + 1] = trace
@@ -183,39 +195,50 @@ def needleman_wunsch(word1, word2, print_matrix=False):
             i -= 1
             j -= 1
         elif trace == 'left':
-            align1 = ['*'] + align1
+            align1 = [escape('*', return_phones)] + align1
             align2 = [word2[j - 1]] + align2
             j -= 1
-        else: # trace == 'top'
+        else:  # trace == 'top'
             align1 = [word1[i - 1]] + align1
-            align2 = ['*'] + align2
+            align2 = [escape('*', return_phones)] + align2
             i -= 1
 
-    align1 = ['#'] + align1
-    align2 = ['#'] + align2
+    align1 = [escape('#', return_phones)] + align1
+    align2 = [escape('#', return_phones)] + align2
 
     if print_matrix:
-        column_labels = ["0"] + word2
-        row_labels = ["0"] + word1
-        df = pandas.DataFrame(score_grid, columns=column_labels, index=row_labels)
+        column_labels = ["0"] + word2_str
+        row_labels = ["0"] + word1_str
+        df = pandas.DataFrame(score_grid, row_labels, column_labels)
         print(df)
         print()
-        df = pandas.DataFrame(trace_grid, columns=column_labels, index=row_labels)
+        df = pandas.DataFrame(score_grid, row_labels, column_labels)
         print(df)
+        print()
 
     return align1, align2
+
+
+def equals(x, y, delta=0.0000001):
+    """Compares two floating point numbers."""
+    return abs(x - y) < delta
+
+
+def escape(character, return_phones):
+    """If return_phones, returns the Phone representation of the character."""
+    return to_phone(character) if return_phones else character
 
 
 def get_cognates(file, threshold=0.5):
     """
     Determine possible cognates using Normalized Levenshtein Distance.
     Align pairs before applying NLD.
-    
+
     :param file: directory of the file
     :type file: str
     :param threshold: argument for NLD
     :type threshold: float
-    :return: 
+    :return:
     """
     with open(file, 'r', encoding='utf-8') as f:
         content = f.readlines()[1:]
@@ -235,7 +258,7 @@ def get_cognates(file, threshold=0.5):
         ld = lev_distance(word1, word2)
         # word1 = ''.join(word1[1:])
         # word2 = ''.join(word2[1:])
-        entry = (concept_id,word1,word2,round(ld, 2))
+        entry = (concept_id, word1, word2, round(ld, 2))
         if ld < threshold:
             cognates.append(entry)
         else:
@@ -244,7 +267,24 @@ def get_cognates(file, threshold=0.5):
     return cognates, not_cognates
 
 
-def print_cognates(file, threshold=0.5):
+def print_cognates(file, threshold=0.4):
+    """
+    Reads a wordlist from a file and prints its contents into two new files,
+    one for the (potential) cognates and one for the (potential) non-cognates.
+    The words in the output files are aligned according to the
+    Needleman-Wunsch implementation.
+    This method expects the input file to have been generated by
+    preprocessing.merge_lists.
+
+    >>> print_cognates('data/rus-ukr-all.csv')
+    This creates two files: data/rus-ukr-cognates.csv
+    and data/rus-ukr-non-cognates.csv.
+
+    Keyword arguments:
+    file -- the input file
+    threshold -- the maximum NED two words can have to be considered cognate.
+                (default: 0.4)
+    """
     cognates, non_cognates = get_cognates(file, threshold)
     file_cog = re.sub('all', 'cognates', file)
     file_non_cog = re.sub('all', 'non-cognates', file)
@@ -253,11 +293,12 @@ def print_cognates(file, threshold=0.5):
         header = f.readlines()[0]
     header = header[:-1] + ',distance\n'
 
-    for file, entries in zip([file_cog, file_non_cog], [cognates, non_cognates]):
+    for file, data in zip([file_cog, file_non_cog], [cognates, non_cognates]):
         with open(file, 'w', encoding='utf-8') as f:
             f.write(header)
-            for entry in entries:
+            for entry in data:
                 f.write(str(entry)[1:-1] + '\n')
+
 
 if __name__ == "__main__":
     ipa_symbols = read_ipa("data/ipa_numerical.csv")
@@ -288,5 +329,13 @@ if __name__ == "__main__":
     for i in result:
         print(i)
 
-    print_cognates('data/deu-swe-all.csv', 0.4)
-    print_cognates('data/rus-ukr-all.csv', 0.4)
+    result = needleman_wunsch(['a', 'p', 'a'], [], False, True)
+    for i in result:
+        print(i)
+
+    result = needleman_wunsch(['a', 'p', 'a'], [], True, True)
+    for i in result:
+        print(i)
+
+    # print_cognates('data/deu-swe-all.csv', 0.4)
+    # print_cognates('data/rus-ukr-all.csv', 0.4)
