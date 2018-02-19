@@ -3,18 +3,16 @@ import copy
 import re
 import pandas
 from phon_inventory import process_line
-import transform_ipa as tipa
+import transform_ipa as tipa_dict
 from phone import Phone
 
-ipa_symbols = dict()
 
-
-def read_ipa(ipa_file):
+def read_ipa_dict(ipa_file):
     """
     Extracts the information contained in the CSV file created by
-    preprocessing.transform_ipa.transform_ipa.
+    preprocessing.transform_ipa_dict.transform_ipa_dict.
     """
-    ipa_symbols = dict()
+    ipa_dict = dict()
     with open(ipa_file, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
@@ -27,29 +25,29 @@ def read_ipa(ipa_file):
                           length=int(fields[6]), vertical=int(fields[7]),
                           horizontal=int(fields[8]), rounding=int(fields[9]),
                           nasalization=int(fields[10]))
-            ipa_symbols[symbol] = phone
-    return ipa_symbols
+            ipa_dict[symbol] = phone
+    return ipa_dict
 
 
-def to_phone(symbol, ipa_symbols=ipa_symbols):
+def to_phone(symbol, ipa_dict):
     """Transforms an IPA symbol into an instance of phone.Phone."""
     if len(symbol) == 1:
-        return copy.deepcopy(ipa_symbols[symbol])
-    phone = copy.deepcopy(ipa_symbols[symbol[0]])
+        return copy.deepcopy(ipa_dict[symbol])
+    phone = copy.deepcopy(ipa_dict[symbol[0]])
     if '͡' in symbol:
-        phone.manner = tipa.string2int('manner', 'affricate')
+        phone.manner = tipa_dict.string2int('manner', 'affricate')
     if 'ʲ' in symbol:
-        phone.secondary = tipa.string2int('secondary', 'palatalized')
+        phone.secondary = tipa_dict.string2int('secondary', 'palatalized')
     if 'ː' in symbol:
-        phone.length = tipa.string2int('length', 'long')
+        phone.length = tipa_dict.string2int('length', 'long')
     elif 'ˑ' in symbol:
-        phone.length = tipa.string2int('length', 'half-long')
+        phone.length = tipa_dict.string2int('length', 'half-long')
     elif '̯' in symbol:
-        phone.length = tipa.string2int('secondary', 'non-syllabic')
+        phone.length = tipa_dict.string2int('secondary', 'non-syllabic')
     return phone
 
 
-def lev_distance(w1, w2):
+def lev_distance(w1, w2, ipa_dict):
     """
     Calculate the normalized modified levenshtein distance
     using phonological information about sounds.
@@ -69,7 +67,7 @@ def lev_distance(w1, w2):
     :rtype: float
     """
     if len(w1) < len(w2):
-        return lev_distance(w2, w1)
+        return lev_distance(w2, w1, ipa_dict)
 
     if len(w2) == 0:
         return float(len(w1))
@@ -81,7 +79,7 @@ def lev_distance(w1, w2):
         for j, symbol2 in enumerate(w2):
             top = previous_row[j + 1] + 1
             left = current_row[j] + 1
-            dist = to_phone(symbol1).distance(to_phone(symbol2))
+            dist = to_phone(symbol1, ipa_dict).distance(to_phone(symbol2, ipa_dict))
             top_left = previous_row[j] + dist
             current_row.append(min(top, left, top_left))
         previous_row = current_row
@@ -89,7 +87,7 @@ def lev_distance(w1, w2):
     return previous_row[-1] / len(w1)
 
 
-def needleman_wunsch(word1, word2, return_phones=False, print_matrix=False):
+def needleman_wunsch(word1, word2, ipa_dict, return_phones=False, print_matrix=False):
     """
     Implementation of the Needleman-Wunsch algorithm,
     which search for the optimal alignment of two sequences.
@@ -117,7 +115,7 @@ def needleman_wunsch(word1, word2, return_phones=False, print_matrix=False):
     len_w2 = len(word2)
     if len_w1 > len_w2:
         align2, align1 = needleman_wunsch(
-            word2, word1, return_phones, print_matrix
+            word2, word1, ipa_dict, return_phones, print_matrix
             )
         return align1, align2
 
@@ -131,8 +129,8 @@ def needleman_wunsch(word1, word2, return_phones=False, print_matrix=False):
         word1_str = word1
         word2_str = word2
     if return_phones:
-        word1 = [to_phone(sound) for sound in word1]
-        word2 = [to_phone(sound) for sound in word2]
+        word1 = [to_phone(sound, ipa_dict) for sound in word1]
+        word2 = [to_phone(sound, ipa_dict) for sound in word2]
 
     score_grid = np.zeros([len_w1 + 1, len_w2 + 1], dtype=float)
     trace_grid = [[] for i in range(len_w1 + 1)]
@@ -160,7 +158,7 @@ def needleman_wunsch(word1, word2, return_phones=False, print_matrix=False):
             if return_phones:
                 phone_dist = sound1.distance(sound2)
             else:
-                phone_dist = to_phone(sound1).distance(to_phone(sound2))
+                phone_dist = to_phone(sound1, ipa_dict).distance(to_phone(sound2, ipa_dict))
 
             if phone_dist < 0.5:
                 top_left = score_grid[i][j] + 2 - phone_dist
@@ -195,16 +193,16 @@ def needleman_wunsch(word1, word2, return_phones=False, print_matrix=False):
             i -= 1
             j -= 1
         elif trace == 'left':
-            align1 = [escape('*', return_phones)] + align1
+            align1 = [escape('*', return_phones, ipa_dict)] + align1
             align2 = [word2[j - 1]] + align2
             j -= 1
         else:  # trace == 'top'
             align1 = [word1[i - 1]] + align1
-            align2 = [escape('*', return_phones)] + align2
+            align2 = [escape('*', return_phones, ipa_dict)] + align2
             i -= 1
 
-    align1 = [escape('#', return_phones)] + align1
-    align2 = [escape('#', return_phones)] + align2
+    align1 = [escape('#', return_phones, ipa_dict)] + align1
+    align2 = [escape('#', return_phones, ipa_dict)] + align2
 
     if print_matrix:
         column_labels = ["0"] + word2_str
@@ -224,12 +222,12 @@ def equals(x, y, delta=0.0000001):
     return abs(x - y) < delta
 
 
-def escape(character, return_phones):
+def escape(character, return_phones, ipa_dict):
     """If return_phones, returns the Phone representation of the character."""
-    return to_phone(character) if return_phones else character
+    return to_phone(character, ipa_dict) if return_phones else character
 
 
-def get_cognates(file, threshold=0.5):
+def get_cognates(file, ipa_dict, threshold=0.4):
     """
     Determine possible cognates using Normalized Levenshtein Distance.
     Align pairs before applying NLD.
@@ -254,8 +252,8 @@ def get_cognates(file, threshold=0.5):
         word1 = process_line(word1)
         word2 = process_line(word2)
 
-        word1, word2 = needleman_wunsch(word1, word2)
-        ld = lev_distance(word1, word2)
+        word1, word2 = needleman_wunsch(word1, word2, ipa_dict)
+        ld = lev_distance(word1, word2, ipa_dict)
         # word1 = ''.join(word1[1:])
         # word2 = ''.join(word2[1:])
         entry = (concept_id, word1, word2, round(ld, 2))
@@ -267,7 +265,7 @@ def get_cognates(file, threshold=0.5):
     return cognates, not_cognates
 
 
-def print_cognates(file, threshold=0.4):
+def print_cognates(file, ipa_dict, threshold=0.4):
     """
     Reads a wordlist from a file and prints its contents into two new files,
     one for the (potential) cognates and one for the (potential) non-cognates.
@@ -285,7 +283,7 @@ def print_cognates(file, threshold=0.4):
     threshold -- the maximum NED two words can have to be considered cognate.
                 (default: 0.4)
     """
-    cognates, non_cognates = get_cognates(file, threshold)
+    cognates, non_cognates = get_cognates(file, ipa_dict, threshold)
     file_cog = re.sub('all', 'cognates', file)
     file_non_cog = re.sub('all', 'non-cognates', file)
 
@@ -301,13 +299,13 @@ def print_cognates(file, threshold=0.4):
 
 
 if __name__ == "__main__":
-    ipa_symbols = read_ipa("../data/ipa_numerical.csv")
+    ipa_dict = read_ipa_dict("../data/ipa_numerical.csv")
     word = 'tʲɪt͡ʃʲeˑnʲijə'
     word_symbols = process_line(word)
     # ['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ', 'nʲ', 'i', 'j', 'ə']
     word_phones = []
     for symbol in word_symbols:
-        word_phones.append(to_phone(symbol))
+        word_phones.append(to_phone(symbol, ipa_dict))
     print(word)
     print(word_symbols)
     print(word_phones)
@@ -315,27 +313,26 @@ if __name__ == "__main__":
     print(word_symbols[0], word_symbols[4], word_phones[0].distance(word_phones[4]))
     print(word_symbols[1], word_symbols[3], word_phones[1].distance(word_phones[3]))
     print(word_symbols[1], word_symbols[7], word_phones[1].distance(word_phones[7]))
-    print('t', to_phone('t'))
-    print('t', 'd', to_phone('t').distance(to_phone('d')))
-    print('t', 't', to_phone('t').distance(to_phone('t')))
-    print('t', 'm', to_phone('t').distance(to_phone('m')))
-    # print(needleman_wunsch(['a', 'p', 'a'], ['p', 'a']))
+    print('t', to_phone('t', ipa_dict))
+    print('t', 'd', to_phone('t', ipa_dict).distance(to_phone('d', ipa_dict)))
+    print('t', 't', to_phone('t', ipa_dict).distance(to_phone('t', ipa_dict)))
+    print('t', 'm', to_phone('t', ipa_dict).distance(to_phone('m', ipa_dict)))
 
-    result = needleman_wunsch(['a', 'p', 'a'], ['p', 'a'])
+    result = needleman_wunsch(['a', 'p', 'a'], ['p', 'a'], ipa_dict)
     for i in result:
         print(i)
 
-    result = needleman_wunsch(['h', 'ɛ', 'ɐ̯', 'b', 's', 't'], ['h', 'ø', 'sː', 't'], print_matrix=True)
+    result = needleman_wunsch(['h', 'ɛ', 'ɐ̯', 'b', 's', 't'], ['h', 'ø', 'sː', 't'], ipa_dict, print_matrix=True)
     for i in result:
         print(i)
 
-    result = needleman_wunsch(['a', 'p', 'a'], [], False, True)
+    result = needleman_wunsch(['a', 'p', 'a'], [], ipa_dict, False, True)
     for i in result:
         print(i)
 
-    result = needleman_wunsch(['a', 'p', 'a'], [], True, True)
+    result = needleman_wunsch(['a', 'p', 'a'], [], ipa_dict, True, True)
     for i in result:
         print(i)
 
-    print_cognates('../data/deu-swe-all.csv', 0.4)
-    print_cognates('../data/rus-ukr-all.csv', 0.4)
+    print_cognates('../data/deu-swe-all.csv', ipa_dict, 0.4)
+    print_cognates('../data/rus-ukr-all.csv', ipa_dict, 0.4)
