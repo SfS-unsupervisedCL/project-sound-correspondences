@@ -1,4 +1,4 @@
-import preprocessing.transform_ipa as tipa
+import transform_ipa as tipa
 
 
 def prev_non_dot(word, index, include_self=False):

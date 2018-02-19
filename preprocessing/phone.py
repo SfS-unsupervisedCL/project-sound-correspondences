@@ -1,4 +1,4 @@
-import preprocessing.transform_ipa as tipa
+import transform_ipa as tipa
 
 class Phone(object):
     """A class storing phonetic information about phone(me)s."""
