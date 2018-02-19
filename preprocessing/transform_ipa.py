@@ -11,7 +11,7 @@ def list2dict(feat_list):
     return dict([elem, index] for index, elem in enumerate(feat_list))
 
 
-sound_type = ['dot', 'word boundary', 'consonant', 'vowel']
+sound_type = ['', 'dot', 'word boundary', 'consonant', 'vowel']
 # consonant articulation
 manner = ['', 'plosive', 'tap', 'trill', 'affricate', 'fricative',
           'lateral fricative', 'lateral approximant', 'approximant',

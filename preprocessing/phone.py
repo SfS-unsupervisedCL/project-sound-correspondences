@@ -1,14 +1,15 @@
 import transform_ipa as tipa
 
+
 class Phone(object):
     """A class storing phonetic information about phone(me)s."""
     __slots__ = 'sound_type', 'manner', 'place', 'voice', 'secondary', 'vertical', 'horizontal', 'rounding', 'length', 'nasalization'
 
     def __init__(
-            self, sound_type,
-            manner, place, voice, secondary,
-            length, vertical, horizontal,
-            rounding, nasalization):
+            self, sound_type=0,
+            manner=0, place=0, voice=0, secondary=0,
+            length=0, vertical=0, horizontal=0,
+            rounding=0, nasalization=0):
         self.sound_type = sound_type
         self.manner = manner
         self.place = place

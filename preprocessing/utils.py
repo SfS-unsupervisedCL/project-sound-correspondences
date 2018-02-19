@@ -31,7 +31,7 @@ def read_ipa(ipa_file):
     return ipa_symbols
 
 
-def to_phone(symbol):
+def to_phone(symbol, ipa_symbols=ipa_symbols):
     """Transforms an IPA symbol into an instance of phone.Phone."""
     if len(symbol) == 1:
         return copy.deepcopy(ipa_symbols[symbol])
