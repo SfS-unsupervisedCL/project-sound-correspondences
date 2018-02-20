@@ -1,9 +1,10 @@
 import numpy as np
-import preprocessing.transform_ipa as tipa
-from preprocessing.phone import Phone
+import transform_ipa as tipa
+from phone import Phone, attributes
 
 
-def get_features(source_w, target_w, n_features):
+def get_features(source_w, target_w):
+    n_features = len(attributes()) * 8  # 8 position features
     source_matrix = process_word(source_w, n_features)
     target_matrix = process_word(target_w, n_features)
 
@@ -52,4 +53,3 @@ def process_word(word, n_features):
 
 def check_type(sound, sound_type):
     return sound.sound_type == tipa.string2int('sound_type', sound_type)
-

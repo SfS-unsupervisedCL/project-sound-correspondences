@@ -43,7 +43,7 @@ def to_phone(symbol, ipa_dict):
     elif 'ˑ' in symbol:
         phone.length = tipa_dict.string2int('length', 'half-long')
     elif '̯' in symbol:
-        phone.length = tipa_dict.string2int('secondary', 'non-syllabic')
+        phone.secondary = tipa_dict.string2int('secondary', 'non-syllabic')
     return phone
 
 
@@ -79,7 +79,10 @@ def lev_distance(w1, w2, ipa_dict):
         for j, symbol2 in enumerate(w2):
             top = previous_row[j + 1] + 1
             left = current_row[j] + 1
-            dist = to_phone(symbol1, ipa_dict).distance(to_phone(symbol2, ipa_dict))
+            try:
+                dist = symbol1.distance(symbol2)
+            except AttributeError:
+                dist = to_phone(symbol1, ipa_dict).distance(to_phone(symbol2, ipa_dict))
             top_left = previous_row[j] + dist
             current_row.append(min(top, left, top_left))
         previous_row = current_row
@@ -227,7 +230,7 @@ def escape(character, return_phones, ipa_dict):
     return to_phone(character, ipa_dict) if return_phones else character
 
 
-def get_cognates(file, ipa_dict, threshold=0.4):
+def get_cognates(file, ipa_dict, threshold=0.4, return_phones=False):
     """
     Determine possible cognates using Normalized Levenshtein Distance.
     Align pairs before applying NLD.
@@ -252,7 +255,7 @@ def get_cognates(file, ipa_dict, threshold=0.4):
         word1 = process_line(word1)
         word2 = process_line(word2)
 
-        word1, word2 = needleman_wunsch(word1, word2, ipa_dict)
+        word1, word2 = needleman_wunsch(word1, word2, ipa_dict, return_phones)
         ld = lev_distance(word1, word2, ipa_dict)
         # word1 = ''.join(word1[1:])
         # word2 = ''.join(word2[1:])

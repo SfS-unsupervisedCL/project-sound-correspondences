@@ -114,7 +114,7 @@ def attributes():
     return Phone().attributes()
 
 if __name__ == "__main__":
-    p = Phone(*[1, 1, 1, 1, 2, 2, 2, 1, 1, 1])
+    p = Phone(*[1, 9, 1, 1, 2, 2, 2, 1, 1, 1])
     print(p)
     print(p.attributes())
     print(p.features())
