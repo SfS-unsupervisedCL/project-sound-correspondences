@@ -36,9 +36,9 @@ Preprocessing:
   - [x] write a modified version of the Levenshtein distance that computes the replacement costs based on the sounds' phonetic features
     - ie., if we have _n_ features, then each feature change costs _1/n_
     - we could consider giving different weights to different features
-    - [ ] for features with values that fall on a scale, we could even consider giving different weights to different changes?
+    - [x] for features with values that fall on a scale, we could even consider giving different weights to different changes?
   - [x] write a method that take list_of_pairs and threshold_value as arguments and return the possible cognates
-  - [ ] determine a good threshold (NED = 0.5?)
+  - [x] determine a good threshold (NED = 0.5?)
 
 The first 10 potential cognates determined by ```utils.get_cognates(file='data/deu-swe-all.csv', threshold=0.5)```:
 - ```#``` is the initial word boundary; ```*``` is the empty string (used for insertion/deletion).
@@ -80,14 +80,17 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
   - [x] prefix a special word-boundary phone to each word
 - [ ] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) 
   - [x] position features: identify previous vowel/consonant etc. for each symbol
-  - [ ] for each phone in a word, determine corresponding phones for each position and create feature sets (e.g. _sourceLang\_itself\_voiced=true_, _targetLang\_prevConsonant\_manner=plosive_, etc.)
+  - [x] for each phone in a word, determine corresponding phones for each position and create feature sets (e.g. _sourceLang\_itself\_voiced=true_, _targetLang\_prevConsonant\_manner=plosive_, etc.)
   - [x] transform the (string) features into features the decision tree packages can work with (integers) (this way, we could also take advantage of the implicit scales that some of the features describe, e.g. vowel height, place of consonant articulation, etc.)
   - [x] write a method generate_instances(levels, positions, features, n_samples) that returns a matrix of size (n_samples x n_features) and a parallel list[str] which contains a list of all the features types
-  - [ ] for each level (i.e. _source_, _target_) and feature combination (e.g. _target\_manner_), create a set of labelled feature sets
+  - [x] for each level (i.e. _source_, _target_) and feature combination (e.g. _target\_manner_), create a set of labelled feature sets
   - [ ] build one tree for each level-feature combination (see below in the _Available data, tools, resources section_ for package options)
   - [ ] export the trees
   - [ ] export the rules
       - Exporting the rules from the trees is a bit complicated. It's possible to export the tree as dot file/graphviz tree in a PDF. It is possible to determine which nodes were queried in a decision path, and it's possible to find out which feature and threshold is associated with each node; this involves a lot of looking into the source code or obscure examples however. 
+  - Possible improvements:
+      - [ ] exclude prevOrSelf_ in certain cases
+      - [ ] exclude vowels for cons prediction and other way around
 
 Evaluation:
 - [ ] imputation and normalized edit distance (maybe also normalized by edit distance between langs?) is the easiest method
