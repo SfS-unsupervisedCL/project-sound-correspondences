@@ -1,82 +1,55 @@
-from phone import Phone
-import transform_ipa as tipa
-import phon_inventory
-import utils
+import numpy as np
+import preprocessing.transform_ipa as tipa
+from preprocessing.phone import Phone
 
 
-def prev_non_dot(word, index, include_self=False):
-    """
-    Returns the previous non-dot symbol. If include_self is True and the
-    symbol itself is a non-dot symbol, this method returns the symbol itself.
+def get_features(source_w, target_w, n_features):
+    source_matrix = process_word(source_w, n_features)
+    target_matrix = process_word(target_w, n_features)
 
-    Keyword arguments:
-    word -- a list of Phone objects starting with a "word boundary" phone,
-            like the lists returned by utils.needleman_wunsch
-    index -- a position within the word (should be > 0, < len(word))
-    include_self -- whether the symbol itself should be included
-                    in the search (default: False)
-    """
-    i = index if include_self else index - 1
-    while i > -1:
-        if word[i].sound_type != tipa.string2int('sound_type', 'dot'):
-            return word[i]
-        i -= 1
-    # this shouldn't happen since the words should start with a word boundary
-    return Phone()  # all features are 0
+    return np.concatenate((source_matrix, target_matrix), axis=1)
 
 
-def prev_consonant(word, index, include_self=False):
-    """
-    Returns the previous consonant. If include_self is True and the
-    symbol itself is a consonant, this method returns the symbol itself.
+def process_word(word, n_features):
+    w_matrix = np.zeros([len(word) - 1, n_features], dtype=np.int32)
 
-    Keyword arguments:
-    word -- a list of Phone objects starting with a "word boundary" phone,
-            like the lists returned by utils.needleman_wunsch
-    index -- a position within the word (should be > 0, < len(word))
-    include_self -- whether the symbol itself should be included
-                    in the search (default: False)
-    """
-    return _prev_sound_type('consonant', word, index, include_self)
+    prev_sound = word[0]
+    prev_non_dot = word[0]
+    prev_cons = Phone()
+    prev_vowel = Phone()
+
+    for i in range(len(word) - 1):
+        itself = word[i + 1]
+
+        row = (itself.features() + prev_sound.features() + prev_non_dot.features()
+               + prev_cons.features() + prev_vowel.features())
+
+        if not check_type(itself, "dot"):
+            self_non_dot = itself
+            prev_non_dot = itself
+        else:
+            self_non_dot = prev_non_dot
+
+        if check_type(itself, "consonant"):
+            self_cons = itself
+            prev_cons = itself
+        else:
+            self_cons = prev_cons
+
+        if check_type(itself, "vowel"):
+            self_vowel = itself
+            prev_vowel = itself
+        else:
+            self_vowel = prev_vowel
+
+        row += self_non_dot.features() + self_cons.features() + self_vowel.features()
+
+        w_matrix[i] = row
+        prev_sound = itself
+
+    return w_matrix
 
 
-def prev_vowel(word, index, include_self=False):
-    """
-    Returns the previous vowel. If include_self is True and the
-    symbol itself is a vowel, this method returns the symbol itself.
+def check_type(sound, sound_type):
+    return sound.sound_type == tipa.string2int('sound_type', sound_type)
 
-    Keyword arguments:
-    word -- a list of Phone objects starting with a "word boundary" phone,
-            like the lists returned by utils.needleman_wunsch
-    index -- a position within the word (should be > 0, < len(word))
-    include_self -- whether the symbol itself should be included
-                    in the search (default: False)
-    """
-    return _prev_sound_type('vowel', word, index, include_self)
-
-
-def _prev_sound_type(sound_type, word, index, include_self):
-    i = index if include_self else index - 1
-    while i > -1:
-        if word[i].sound_type == tipa.string2int('sound_type', sound_type):
-            return word[i]
-        i -= 1
-    return Phone()  # all features are 0
-
-
-if __name__ == "__main__":
-    word = '#kæt'
-    print(word)
-    word = phon_inventory.process_line(word)
-    ipa = utils.read_ipa('../data/ipa_numerical.csv')
-    word = [utils.to_phone(symbol, ipa) for symbol in word]
-    print(word)
-    print('positional features for \'t\'')
-    print('itself', word[3])
-    print('previous position', word[2])
-    print('previous non-dot symbol', prev_non_dot(word, 3))
-    print('previous consonant', prev_consonant(word, 3))
-    print('previous vowel', prev_vowel(word, 3))
-    print('previous or self non-dot symbol', prev_non_dot(word, 3, True))
-    print('previous or self consonant', prev_consonant(word, 3, True))
-    print('previous or self vowel', prev_vowel(word, 3, True))
