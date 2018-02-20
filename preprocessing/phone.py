@@ -3,7 +3,7 @@ import transform_ipa as tipa
 
 class Phone(object):
     """A class storing phonetic information about phone(me)s."""
-    __slots__ = 'sound_type', 'manner', 'place', 'voice', 'secondary', 'vertical', 'horizontal', 'rounding', 'length', 'nasalization'
+    __slots__ = tipa.phonetic_features
 
     def __init__(
             self, sound_type=0,
@@ -22,20 +22,33 @@ class Phone(object):
         self.nasalization = nasalization
 
     def __repr__(self):
+        """Human-readable string representation."""
+        attributes = []
+        for slot in self.__slots__:
+            slot_val = getattr(self, slot)
+            attributes.append(tipa.int2string(slot, slot_val))
         return "{}({}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(
-            self.__class__.__name__,
-            tipa.int2string('sound_type', self.sound_type),
-            tipa.int2string('manner', self.manner),
-            tipa.int2string('place', self.place),
-            tipa.int2string('voice', self.voice),
-            tipa.int2string('secondary', self.secondary),
-            tipa.int2string('length', self.length),
-            tipa.int2string('vertical', self.vertical),
-            tipa.int2string('horizontal', self.horizontal),
-            tipa.int2string('rounding', self.rounding),
-            tipa.int2string('nasalization', self.nasalization))
+                self.__class__.__name__, *attributes)
+
+    def attributes(self):
+        """Returns the canonical order of the phonetic features."""
+        return self.__slots__
+
+    def features(self):
+        """Returns this phone's attributes as a list of integers."""
+        return [getattr(self, slot) for slot in self.__slots__]
 
     def distance(self, other):
+        """
+        Returns the phonetic distance to another phone.
+
+        Keyword arguments:
+        other -- another Phone object
+
+        Returns:
+        A float in the range [0, 1] where 0 means the phones are identical
+        and 1 means that they are maximally different.
+        """
         if self.sound_type != other.sound_type:
             return 1
         if self == other:
@@ -92,10 +105,16 @@ class Phone(object):
         dist /= max_dist
         return dist
 
-    def equal(self, other):
+    def equals(self, other):
         return self.distance(other) == 0
 
-    def features(self):
-        return [self.sound_type, self.manner,
-                self.place, self.voice, self.secondary, self.vertical,
-                self.horizontal, self.rounding, self.length, self.nasalization]
+
+def attributes():
+    """Returns the canonical order of the phonetic features."""
+    return Phone().attributes()
+
+if __name__ == "__main__":
+    p = Phone(*[1, 1, 1, 1, 2, 2, 2, 1, 1, 1])
+    print(p)
+    print(p.attributes())
+    print(p.features())

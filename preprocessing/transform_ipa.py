@@ -1,5 +1,6 @@
 import sys
 
+phonetic_features = ['sound_type', 'manner', 'place', 'voice', 'secondary', 'length', 'vertical', 'horizontal', 'rounding', 'nasalization']
 
 def list2dict(feat_list):
     """
@@ -34,9 +35,7 @@ nasalization = ['', 'nasalized']
 lists = [None, sound_type, manner, place, voice, secondary,
          length, vertical, horizontal, rounding, nasalization]
 dicts = [list2dict(lists[index]) for index in range(len(lists))]
-phone_slots = ['', 'sound_type', 'manner', 'place', 'voice',
-               'secondary', 'length', 'vertical', 'horizontal',
-               'rounding', 'nasalization']
+phone_slots = [''] + phonetic_features
 positions = {elem: index for index, elem in enumerate(phone_slots)}
 
 
@@ -103,8 +102,8 @@ def transform_ipa(in_file, out_file):
 
 
 if __name__ == '__main__':
-    in_file = 'ipa.csv'
-    out_file = 'ipa_numerical.csv'
+    in_file = '../data/ipa.csv'
+    out_file = '../data/ipa_numerical.csv'
     if len(sys.argv) > 2:
         in_file = sys.argv[1]
         out_file = sys.argv[2]
