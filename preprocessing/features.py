@@ -1,12 +1,12 @@
+from . import candidate_contexts
+from . import phone
+from . import utils
 import numpy as np
 import sys
-import utils
-import candidate_contexts
 import re
-import phone
 
 
-def generate_features(in_file, threshold=0.4, ipa_file="../data/ipa_numerical.csv"):
+def generate_features(in_file, threshold=0.4, ipa_file="data/ipa_numerical.csv"):
     ipa_dict = utils.read_ipa_dict(ipa_file)
     cognates, _ = utils.get_cognates(in_file, ipa_dict, threshold, return_phones=True)
 

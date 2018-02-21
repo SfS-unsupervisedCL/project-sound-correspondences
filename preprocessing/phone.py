@@ -1,4 +1,4 @@
-import transform_ipa as tipa
+from . import transform_ipa as tipa
 
 
 class Phone(object):

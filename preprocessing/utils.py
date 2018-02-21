@@ -1,10 +1,10 @@
+from .phone import Phone
+from .phon_inventory import process_line
+from . import transform_ipa as tipa_dict
 import numpy as np
 import copy
 import re
 import pandas
-from phon_inventory import process_line
-import transform_ipa as tipa_dict
-from phone import Phone
 
 
 def read_ipa_dict(ipa_file):
@@ -302,7 +302,7 @@ def print_cognates(file, ipa_dict, threshold=0.4):
 
 
 if __name__ == "__main__":
-    ipa_dict = read_ipa_dict("../data/ipa_numerical.csv")
+    ipa_dict = read_ipa_dict("data/ipa_numerical.csv")
     word = 'tʲɪt͡ʃʲeˑnʲijə'
     word_symbols = process_line(word)
     # ['tʲ', 'ɪ', 't͡ʃʲ', 'eˑ', 'nʲ', 'i', 'j', 'ə']
@@ -337,5 +337,5 @@ if __name__ == "__main__":
     for i in result:
         print(i)
 
-    print_cognates('../data/deu-swe-all.csv', ipa_dict, 0.4)
-    print_cognates('../data/rus-ukr-all.csv', ipa_dict, 0.4)
+    print_cognates('data/deu-swe-all.csv', ipa_dict, 0.4)
+    print_cognates('data/rus-ukr-all.csv', ipa_dict, 0.4)

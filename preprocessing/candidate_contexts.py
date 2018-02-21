@@ -1,6 +1,6 @@
+from . import transform_ipa as tipa
+from .phone import Phone, attributes
 import numpy as np
-import transform_ipa as tipa
-from phone import Phone, attributes
 
 
 def get_features(source_w, target_w):

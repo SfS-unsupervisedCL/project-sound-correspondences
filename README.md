@@ -20,6 +20,15 @@ Our research questions are:
 - Can we identify sound correspondence rules between cognate languages in an unsupervised manner?
 - How well does this work: How complicated can the rule contexts be? How does such an unsupervised system compare to similar supervised methods or to non-computational methods?
 
+## How to run the code
+
+We adapted the structure of the imports to allow relative imports from ```preprocessing``` into ```tree```. In order to run the scripts with this import structure, it is necessary to run them as modules from the parent directory (i.e., ```project-sound-correspondences```), e.g.
+
+```
+python -m tree.tree data\deu-swe-features.csv output
+python -m preprocessing.phone
+```
+
 ## Method
 
 Data:
