@@ -53,10 +53,15 @@ def build_tree(in_file, out_dir, feature, types):
         header = f.readlines()[0].split(',')
     n_cols = len(header)
     label_col = header.index(feature)
+    lang = feature.split("_")[0]
+    removed_indices = [i for i, x in enumerate(header) if x.startswith(lang + "_prevOrSelf")]
     header.pop(label_col)
 
     data_cols = list(range(n_cols))
     data_cols.remove(label_col)
+    # Remove indices of columns that contain data about "previousOrSelfSound" of source language
+    data_cols = [i for j, i in enumerate(data_cols) if j not in removed_indices]
+
     labels = np.loadtxt(open(in_file, 'r'), delimiter=",", dtype=np.int32, skiprows=1, usecols=label_col)
     data = np.loadtxt(open(in_file, 'r'), delimiter=",", dtype=np.int32, skiprows=1, usecols=data_cols)
 
@@ -86,10 +91,10 @@ def build_trees(in_file, out_dir):
         build_tree(in_file, out_dir, feature, types)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        sys.stderr.write('Usage: %s FEATURES OUTPUT_DIR\n' % sys.argv[0])
-        sys.exit(1)
-
-    build_trees(sys.argv[1], sys.argv[2])
-    # build_trees("../data/deu-swe-features.csv", "../output/")
+    # if len(sys.argv) < 3:
+    #     sys.stderr.write('Usage: %s FEATURES OUTPUT_DIR\n' % sys.argv[0])
+    #     sys.exit(1)
+    #
+    # build_trees(sys.argv[1], sys.argv[2])
+    build_trees("../data/deu-swe-features.csv", "../output/")
 
