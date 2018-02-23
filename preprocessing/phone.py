@@ -27,8 +27,8 @@ class Phone(object):
         for slot in self.__slots__:
             slot_val = getattr(self, slot)
             attributes.append(tipa.int2string(slot, slot_val))
-        return "{}({}, {}, {}, {}, {}, {}, {}, {}, {}, {})".format(
-                self.__class__.__name__, *attributes)
+        return "{}({}, {}, {}, {}, {}, {}, {}, {}, {}, {})" \
+               .format(self.__class__.__name__, *attributes)
 
     def attributes(self):
         """Returns the canonical order of the phonetic features."""
@@ -43,11 +43,12 @@ class Phone(object):
         Returns the phonetic distance to another phone.
 
         Keyword arguments:
-        other -- another Phone object
+        other: Another Phone object.
 
         Returns:
-        A float in the range [0, 1] where 0 means the phones are identical
-        and 1 means that they are maximally different.
+        dist: A float in the range [0, 1]
+              where 0 means the phones are identical
+              and 1 means that they are maximally different.
         """
         if self.sound_type != other.sound_type:
             return 1
@@ -112,6 +113,7 @@ class Phone(object):
 def attributes():
     """Returns the canonical order of the phonetic features."""
     return Phone().attributes()
+
 
 if __name__ == "__main__":
     p = Phone(*[1, 9, 1, 1, 2, 2, 2, 1, 1, 1])

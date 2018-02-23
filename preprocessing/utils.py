@@ -11,6 +11,13 @@ def read_ipa_dict(ipa_file):
     """
     Extracts the information contained in the CSV file created by
     preprocessing.transform_ipa_dict.transform_ipa_dict.
+
+    Keyword arguments:
+    ipa_file: A file containting information on IPA symbols in integer format.
+
+    Returns:
+    ipa_dict: A dict(str -> Phone) that can be used to transform IPA characters
+              into Phone objects.
     """
     ipa_dict = dict()
     with open(ipa_file, 'r', encoding='utf-8') as f:
@@ -30,7 +37,16 @@ def read_ipa_dict(ipa_file):
 
 
 def to_phone(symbol, ipa_dict):
-    """Transforms an IPA symbol into an instance of phone.Phone."""
+    """
+    Transforms an IPA symbol (cluster) into an instance of phone.Phone.
+
+    Keyword arguments:
+    symbol: A str containing one or more IPA symbols that represent one sound.
+    ipa_dict: A dict(str -> Phone) as created by read_ipa_dict.
+
+    Returns:
+    phone: A Phone object.
+    """
     if len(symbol) == 1:
         return copy.deepcopy(ipa_dict[symbol])
     phone = copy.deepcopy(ipa_dict[symbol[0]])
@@ -52,17 +68,19 @@ def lev_distance(w1, w2, ipa_dict):
     Calculate the normalized modified levenshtein distance
     using phonological information about sounds.
 
-    >>> lev_distance(['t', 'i'], ['d', 'i'])
+    >>> lev_distance(['t', 'i'], ['d', 'i'], ipa_dict)
     0.05555555555555555
-    >>> lev_distance(['t', 'i'], ['a', 'i'])
+    >>> lev_distance(['t', 'i'], ['a', 'i'], ipa_dict)
     0.5
-    >>> lev_distance(['a', 't'], ['t', 'a'])
+    >>> lev_distance(['a', 't'], ['t', 'a'], ipa_dict)
     1.0
 
     :param w1: first word
-    :type: [str]
+    :type: [str] or [Phone]
     :param w2: second word
-    :type: [str]
+    :type: [str] or [Phone]
+    :param ipa_dict: IPA dictionary
+    :type: dict(str -> Phone)
     :return: levenshtein distance
     :rtype: float
     """
@@ -80,9 +98,12 @@ def lev_distance(w1, w2, ipa_dict):
             top = previous_row[j + 1] + 1
             left = current_row[j] + 1
             try:
+                # w1 and w2 are of type list(Phone)
                 dist = symbol1.distance(symbol2)
             except AttributeError:
-                dist = to_phone(symbol1, ipa_dict).distance(to_phone(symbol2, ipa_dict))
+                # w1 and w2 are of type list(str)
+                dist = to_phone(symbol1, ipa_dict).distance(to_phone(symbol2,
+                                                                     ipa_dict))
             top_left = previous_row[j] + dist
             current_row.append(min(top, left, top_left))
         previous_row = current_row
@@ -90,12 +111,13 @@ def lev_distance(w1, w2, ipa_dict):
     return previous_row[-1] / len(w1)
 
 
-def needleman_wunsch(word1, word2, ipa_dict, return_phones=False, print_matrix=False):
+def needleman_wunsch(word1, word2, ipa_dict,
+                     return_phones=False, print_matrix=False):
     """
     Implementation of the Needleman-Wunsch algorithm,
     which search for the optimal alignment of two sequences.
 
-    >>> needleman_wunsch(['a', 'p', 'a'], ['p', 'a'], False, False)
+    >>> needleman_wunsch(['a', 'p', 'a'], ['p', 'a'], ipa_dict, False, False)
     [[Phone(1 0 0 0 0 0 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)],
      [Phone(1 0 0 0 0 0 0 0 0 0), Phone(0 0 0 0 0 0 0 0 0 0), Phone(2 1 12 1 0 1 0 0 0 0), Phone(3 0 0 0 0 1 1 5 1 0)]]
 
@@ -117,9 +139,8 @@ def needleman_wunsch(word1, word2, ipa_dict, return_phones=False, print_matrix=F
     len_w1 = len(word1)
     len_w2 = len(word2)
     if len_w1 > len_w2:
-        align2, align1 = needleman_wunsch(
-            word2, word1, ipa_dict, return_phones, print_matrix
-            )
+        align2, align1 = needleman_wunsch(word2, word1, ipa_dict,
+                                          return_phones, print_matrix)
         return align1, align2
 
     # transition scores:
@@ -161,7 +182,9 @@ def needleman_wunsch(word1, word2, ipa_dict, return_phones=False, print_matrix=F
             if return_phones:
                 phone_dist = sound1.distance(sound2)
             else:
-                phone_dist = to_phone(sound1, ipa_dict).distance(to_phone(sound2, ipa_dict))
+                phone1 = to_phone(sound1, ipa_dict)
+                phone2 = to_phone(sound2, ipa_dict)
+                phone_dist = phone1.distance(phone2)
 
             if phone_dist < 0.5:
                 top_left = score_grid[i][j] + 2 - phone_dist
@@ -172,8 +195,8 @@ def needleman_wunsch(word1, word2, ipa_dict, return_phones=False, print_matrix=F
             max_score = max(scores.values())
             score_grid[i + 1][j + 1] = max_score
             traces = [k for k, v in scores.items() if equals(max_score, v)]
-            # For now, let's only generate one alignment,
-            # even if there are several ones possible.
+            # We only need one alignment, so we only generate one,
+            # even when there are several ones possible.
             # We prioritize (mis)matches over insertions/deletions.
             trace = traces[0]
             if len(traces) > 1:
@@ -237,8 +260,12 @@ def get_cognates(file, ipa_dict, threshold=0.4, return_phones=False):
 
     :param file: directory of the file
     :type file: str
+    :param ipa_dict: IPA dictionary
+    :type ipa_dict: dict(str -> Phone)
     :param threshold: argument for NLD
     :type threshold: float
+    :param return_phones: if True, return [Phone] else [str]
+    :type return_phones: bool
     :return:
     """
     with open(file, 'r', encoding='utf-8') as f:
@@ -277,14 +304,15 @@ def print_cognates(file, ipa_dict, threshold=0.4):
     This method expects the input file to have been generated by
     preprocessing.merge_lists.
 
-    >>> print_cognates('data/rus-ukr-all.csv')
+    >>> print_cognates('data/rus-ukr-all.csv', ipa_dict)
     This creates two files: data/rus-ukr-cognates.csv
     and data/rus-ukr-non-cognates.csv.
 
     Keyword arguments:
-    file -- the input file
-    threshold -- the maximum NED two words can have to be considered cognate.
-                (default: 0.4)
+    file: The input file.
+    ipa_dict: A dict(str -> Phone) as created by read_ipa_dict.
+    threshold: The maximum NED two words can have to be considered cognate.
+               (default: 0.4)
     """
     cognates, non_cognates = get_cognates(file, ipa_dict, threshold)
     file_cog = re.sub('all', 'cognates', file)
@@ -312,10 +340,14 @@ if __name__ == "__main__":
     print(word)
     print(word_symbols)
     print(word_phones)
-    print(word_symbols[0], word_symbols[1], word_phones[0].distance(word_phones[1]))
-    print(word_symbols[0], word_symbols[4], word_phones[0].distance(word_phones[4]))
-    print(word_symbols[1], word_symbols[3], word_phones[1].distance(word_phones[3]))
-    print(word_symbols[1], word_symbols[7], word_phones[1].distance(word_phones[7]))
+    print(word_symbols[0], word_symbols[1],
+          word_phones[0].distance(word_phones[1]))
+    print(word_symbols[0], word_symbols[4],
+          word_phones[0].distance(word_phones[4]))
+    print(word_symbols[1], word_symbols[3],
+          word_phones[1].distance(word_phones[3]))
+    print(word_symbols[1], word_symbols[7],
+          word_phones[1].distance(word_phones[7]))
     print('t', to_phone('t', ipa_dict))
     print('t', 'd', to_phone('t', ipa_dict).distance(to_phone('d', ipa_dict)))
     print('t', 't', to_phone('t', ipa_dict).distance(to_phone('t', ipa_dict)))
@@ -325,7 +357,9 @@ if __name__ == "__main__":
     for i in result:
         print(i)
 
-    result = needleman_wunsch(['h', 'ɛ', 'ɐ̯', 'b', 's', 't'], ['h', 'ø', 'sː', 't'], ipa_dict, print_matrix=True)
+    result = needleman_wunsch(['h', 'ɛ', 'ɐ̯', 'b', 's', 't'],
+                              ['h', 'ø', 'sː', 't'],
+                              ipa_dict, print_matrix=True)
     for i in result:
         print(i)
 

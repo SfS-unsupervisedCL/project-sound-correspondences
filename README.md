@@ -25,8 +25,9 @@ Our research questions are:
 We adapted the structure of the imports to allow relative imports from ```preprocessing``` into ```tree```. In order to run the scripts with this import structure, it is necessary to run them as modules from the parent directory (i.e., ```project-sound-correspondences```), e.g.
 
 ```
+python -m preprocessing.merge_lists deu data\deu.csv swe data\swe.csv data
+python -m preprocessing.features data\rus-ukr-all.csv data\ipa_numerical.csv 0.4
 python -m tree.tree data\deu-swe-features.csv output
-python -m preprocessing.phone
 ```
 
 ## Method
@@ -93,12 +94,14 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
   - [x] transform the (string) features into features the decision tree packages can work with (integers) (this way, we could also take advantage of the implicit scales that some of the features describe, e.g. vowel height, place of consonant articulation, etc.)
   - [x] write a method generate_instances(levels, positions, features, n_samples) that returns a matrix of size (n_samples x n_features) and a parallel list[str] which contains a list of all the features types
   - [x] for each level (i.e. _source_, _target_) and feature combination (e.g. _target\_manner_), create a set of labelled feature sets
-  - [ ] build one tree for each level-feature combination (see below in the _Available data, tools, resources section_ for package options)
-  - [ ] export the trees
-  - [ ] export the rules
+  - [x] build one tree for each level-feature combination (see below in the _Available data, tools, resources section_ for package options)
+  - [x] export the trees
+  - [x] export the rules
       - Exporting the rules from the trees is a bit complicated. It's possible to export the tree as dot file/graphviz tree in a PDF. It is possible to determine which nodes were queried in a decision path, and it's possible to find out which feature and threshold is associated with each node; this involves a lot of looking into the source code or obscure examples however. 
   - Possible improvements:
-      - [ ] exclude prevOrSelf_ in certain cases
+      - [ ] trim the trees: play around with values for min_samples_split/min_samples_leaf, min_impurity_decrease
+        - Unfortunately, it appears that sklearn does not allow us to prevent splits that result in sibling nodes predicting the same category.
+      - [x] exclude prevOrSelf_ in certain cases
       - [ ] exclude vowels for cons prediction and other way around
 
 Evaluation:

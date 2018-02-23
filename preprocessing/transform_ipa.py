@@ -1,6 +1,9 @@
 import sys
 
-phonetic_features = ['sound_type', 'manner', 'place', 'voice', 'secondary', 'length', 'vertical', 'horizontal', 'rounding', 'nasalization']
+phonetic_features = ['sound_type', 'manner', 'place', 'voice', 'secondary',
+                     'length', 'vertical', 'horizontal', 'rounding',
+                     'nasalization']
+
 
 def list2dict(feat_list):
     """
