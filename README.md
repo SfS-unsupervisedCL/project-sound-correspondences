@@ -96,8 +96,11 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
   - [x] for each level (i.e. _source_, _target_) and feature combination (e.g. _target\_manner_), create a set of labelled feature sets
   - [x] build one tree for each level-feature combination (see below in the _Available data, tools, resources section_ for package options)
   - [x] export the trees
-  - [x] export the rules
-      - Exporting the rules from the trees is a bit complicated. It's possible to export the tree as dot file/graphviz tree in a PDF. It is possible to determine which nodes were queried in a decision path, and it's possible to find out which feature and threshold is associated with each node; this involves a lot of looking into the source code or obscure examples however. 
+  - [ ] export the rules
+      - [x] Perform a tree-traversal to get the rules.
+      - [ ] Merge rules that describe sibling leaf nodes that predict the same class.
+      - [ ] Switch back from numerical values to categorical ones.
+      - [ ] Combine rules that predict the same classes?
   - Possible improvements:
       - [ ] trim the trees: play around with values for min_samples_split/min_samples_leaf, min_impurity_decrease
         - Unfortunately, it appears that sklearn does not allow us to prevent splits that result in sibling nodes predicting the same category.

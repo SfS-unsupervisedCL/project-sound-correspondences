@@ -13,8 +13,9 @@ features_dict = dict(zip(tipa.phonetic_features[1:], all_features_lists[1:]))
 
 
 def build_tree(in_file, out_dir, feature, types):
-    feature_name = re.sub('itself_', '', feature)
-    print("Building the tree for {}.".format(feature_name))
+    feature_name_with_lang = re.sub('itself_', '', feature)
+    feature_name = feature_name_with_lang.split('_')[1]
+    print("Building the tree for {}.".format(feature_name_with_lang))
 
     with open(in_file, 'r', encoding='utf-8') as f:
         header = f.readlines()[0].split(',')
@@ -29,7 +30,8 @@ def build_tree(in_file, out_dir, feature, types):
     #    for the language level we are currently considering)
     lang = feature.split("_")[0]
     removed_indices = [i for i, x in enumerate(header)
-                       if x.startswith(lang + "_prevOrSelf")]
+                       if (x.startswith(lang + "_prevOrSelf"))
+                       and (x.endswith(feature_name))]
     label_col = header.index(feature)
     removed_indices.append(label_col)
 
@@ -69,8 +71,10 @@ def build_tree(in_file, out_dir, feature, types):
                                     rounded=True,
                                     special_characters=True)
     graph = graphviz.Source(dot_data)
-    outfile = out_dir + '/' + feature_name
+    outfile = out_dir + '/' + feature_name_with_lang
     graph.render(outfile)
+
+    return clf, header, class_names
 
 
 def build_trees(in_file, out_dir):
