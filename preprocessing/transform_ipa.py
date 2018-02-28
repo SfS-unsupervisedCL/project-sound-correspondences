@@ -35,8 +35,9 @@ horizontal = ['', 'back', 'near-back', 'central', 'near-front',
               'front']
 rounding = ['', 'unrounded', 'rounded']
 nasalization = ['', 'nasalized']
-lists = [None, sound_type, manner, place, voice, secondary,
-         length, vertical, horizontal, rounding, nasalization]
+all_features = [sound_type, manner, place, voice, secondary,
+                length, vertical, horizontal, rounding, nasalization]
+lists = [None] + all_features
 dicts = [list2dict(lists[index]) for index in range(len(lists))]
 phone_slots = [''] + phonetic_features
 positions = {elem: index for index, elem in enumerate(phone_slots)}

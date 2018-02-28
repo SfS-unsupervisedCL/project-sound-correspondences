@@ -1,5 +1,5 @@
 from . import candidate_contexts
-from . import phone
+from . import transform_ipa as tipa
 from . import utils
 import numpy as np
 import sys
@@ -30,15 +30,20 @@ def generate_features(in_file, ipa_file, threshold=0.4):
 
     out_file = re.sub('all', 'features', in_file)
     levels = simple_file_name(in_file).split('-')[:2]
-    features = phone.attributes()
-    header = ["{}_{}_{}".format(l, p, f)
-              for l in levels
-              for p in candidate_contexts.positions
-              for f in features]
-    header = ','.join(header)
-
-    np.savetxt(out_file, all_features, fmt='%d', delimiter=',', header=header)
+    header = ','.join(header_list(levels))
+    np.savetxt(out_file, all_features,
+               fmt='%d', delimiter=',', header=header, comments='')
     print("saved the features in {}".format(out_file))
+
+
+def header_list(levels,
+                positions=candidate_contexts.positions,
+                phonetic_features=tipa.phonetic_features):
+    """Generates a list of all feature combinations."""
+    return ["{}_{}_{}".format(l, p, f)
+            for l in levels
+            for p in positions
+            for f in phonetic_features]
 
 
 def simple_file_name(file):

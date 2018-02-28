@@ -28,6 +28,7 @@ We adapted the structure of the imports to allow relative imports from ```prepro
 python -m preprocessing.merge_lists deu data\deu.csv swe data\swe.csv data
 python -m preprocessing.features data\rus-ukr-all.csv data\ipa_numerical.csv 0.4
 python -m tree.tree data\deu-swe-features.csv output
+python -m test.ruletest -v
 ```
 
 ## Method
@@ -98,7 +99,7 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
   - [x] export the trees
   - [ ] export the rules
       - [x] Perform a tree-traversal to get the rules.
-      - [ ] Merge rules that describe sibling leaf nodes that predict the same class.
+      - [x] Merge rules that describe sibling leaf nodes that predict the same class.
       - [ ] Switch back from numerical values to categorical ones.
       - [ ] Combine rules that predict the same classes?
   - Possible improvements:

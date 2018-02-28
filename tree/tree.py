@@ -6,10 +6,8 @@ import numpy as np
 import re
 import sys
 
-all_features_lists = [tipa.sound_type, tipa.manner, tipa.place, tipa.voice,
-                      tipa.secondary, tipa.length, tipa.vertical,
-                      tipa.horizontal, tipa.rounding, tipa.nasalization]
-features_dict = dict(zip(tipa.phonetic_features[1:], all_features_lists[1:]))
+
+features_dict = dict(zip(tipa.phonetic_features[1:], tipa.all_features[1:]))
 
 
 def build_tree(in_file, out_dir, feature, types):

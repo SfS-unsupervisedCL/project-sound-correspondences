@@ -1,6 +1,6 @@
 from .phone import Phone
 from .phon_inventory import process_line
-from . import transform_ipa as tipa_dict
+from . import transform_ipa as tipa
 import numpy as np
 import copy
 import re
@@ -51,15 +51,15 @@ def to_phone(symbol, ipa_dict):
         return copy.deepcopy(ipa_dict[symbol])
     phone = copy.deepcopy(ipa_dict[symbol[0]])
     if '͡' in symbol:
-        phone.manner = tipa_dict.string2int('manner', 'affricate')
+        phone.manner = tipa.string2int('manner', 'affricate')
     if 'ʲ' in symbol:
-        phone.secondary = tipa_dict.string2int('secondary', 'palatalized')
+        phone.secondary = tipa.string2int('secondary', 'palatalized')
     if 'ː' in symbol:
-        phone.length = tipa_dict.string2int('length', 'long')
+        phone.length = tipa.string2int('length', 'long')
     elif 'ˑ' in symbol:
-        phone.length = tipa_dict.string2int('length', 'half-long')
+        phone.length = tipa.string2int('length', 'half-long')
     elif '̯' in symbol:
-        phone.secondary = tipa_dict.string2int('secondary', 'non-syllabic')
+        phone.secondary = tipa.string2int('secondary', 'non-syllabic')
     return phone
 
 
