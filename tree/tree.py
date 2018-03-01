@@ -16,10 +16,9 @@ def build_tree(in_file, out_dir, feature, types):
     print("Building the tree for {}.".format(feature_name_with_lang))
 
     with open(in_file, 'r', encoding='utf-8') as f:
-        header = f.readlines()[0].split(',')
-
-    if '# ' in header[0]:
-        header[0] = header[0][2:]
+        header = f.readlines()[0]
+        header = re.sub('[# \\n]', '', header)
+        header = header.split(',')
 
     # exclude certain information from the training data:
     # - the column that we want to predict (label_col)

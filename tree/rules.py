@@ -21,8 +21,6 @@ def get_rules(clf, class_names, feature_names):
     """
     tree = clf.tree_
     rules = traverse(tree, 0, class_names, feature_names, [], [], [], [])
-    for r in rules:
-        print(r)
     rules = prune_rules(rules, feature_names)
 
     rules_str = []
@@ -137,8 +135,7 @@ def prune_rules(rules, feature_names):
     # Replace, e.g.,
     # 'If A > 4 and A > 6 then class1.' with
     # 'If A > 6 then class1.'
-    for rule in rules_pruned:
-        rule = shorten_rule(rule)
+    rules_pruned = [shorten_rule(rule) for rule in rules_pruned]
 
     return rules_pruned
 
