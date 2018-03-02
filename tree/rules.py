@@ -1,4 +1,4 @@
-from .tree import build_tree, features_dict
+from preprocessing import transform_ipa as tipa
 from sklearn.tree import _tree
 from copy import deepcopy
 import numpy as np
@@ -68,9 +68,13 @@ def traverse(tree, node,
         rule = (deepcopy(features), deepcopy(thresholds), deepcopy(decisions),
                 deepcopy(class_name))
         rules.append(rule)
-        features.pop()
-        thresholds.pop()
-        decisions.pop()
+        try:
+            features.pop()
+            thresholds.pop()
+            decisions.pop()
+        except IndexError:
+            # The entire tree is a single leaf node.
+            pass
         return rules
 
     feature = feature_names[tree.feature[node]]
@@ -85,7 +89,7 @@ def traverse(tree, node,
              deepcopy(features), deepcopy(thresholds), deepcopy(decisions),
              rules)
 
-    decisions[len(decisions) - 1] = False
+    decisions[-1] = False
     traverse(tree, tree.children_right[node],
              class_names, feature_names,
              features, thresholds, decisions, rules)
@@ -104,6 +108,9 @@ def int2class(value, class_names):
 def prune_rules(rules, feature_names):
     """Removes redundancies from the given rules."""
 
+    if len(rules) == 1:
+        return rules
+
     rules = [sort(rule, feature_names) for rule in rules]
 
     # Sometimes, there are pairs of rules with redundant decisions.
@@ -111,25 +118,30 @@ def prune_rules(rules, feature_names):
     # 'If A > 4 and B <= 6 then class1.' and
     # 'If A > 4 and B > 6 then class1.' with
     # 'If A > 4 then class1.'
-    rules_pruned = []
+    rules_pruned = rules
     remove_rules = []
     change_rules = True
 
     while change_rules:
+        remove_rules = []
+
+        rules = deepcopy(rules_pruned)
+        rules_pruned = []
         for (rule1, rule2) in itertools.combinations(rules, 2):
             rules_merged = merge_and_shorten_rules(rule1, rule2)
-            if len(rules_merged) == 1:
-                rules_pruned += rules_merged
-                remove_rules += [rule1, rule2]
             for r in rules_merged:
                 if r not in rules_pruned:
                     rules_pruned.append(r)
+            if len(rules_merged) == 1:
+                remove_rules += [rule1, rule2]
+
         for rule in remove_rules:
             try:
                 rules_pruned.remove(rule)
             except ValueError:
                 pass
-        change_rules = len(remove_rules) == 0
+
+        change_rules = len(remove_rules) > 0
 
     # Sometimes, a rule contains redundant decisions.
     # Replace, e.g.,
@@ -274,18 +286,44 @@ def lists2rule(features, thresholds, decisions, class_name):
     A str representing the rule.
     """
     rule = 'IF '
-    for (feature, threshold, decision) in zip(features, thresholds, decisions):
-        rule += (feature + ' ' + (u'\u2264' if decision else '>')
-                 + ' ' + str(threshold) + ' AND ')
+
+    i = 0
+    while i < len(features):
+        feature, threshold, decision = features[i], thresholds[i], decisions[i]
+        try:
+            if feature == features[i + 1]:
+                # If a segment like 'A > 2'
+                # is followed by a segment like 'A < 7',
+                # merge them (e.g. '2 <= A < 7').
+                rule += (rule_segment2string(features[i + 1],
+                                             thresholds[i + 1],
+                                             decisions[i + 1],
+                                             lower_bound=threshold) + ' AND ')
+                i += 2
+                continue
+        except IndexError:
+            pass
+        rule += rule_segment2string(feature, threshold, decision) + ' AND '
+        i += 1
+
     return rule[:-4] + 'THEN ' + class_name
 
 
-if __name__ == "__main__":
-    clf, header, class_names = build_tree('data\deu-swe-features.csv',
-                                          'output',
-                                          'deu_itself_manner',
-                                          features_dict['manner'])
-    rules = get_rules(clf, class_names, header)
-    print()
-    for rule in rules:
-        print(rule)
+def rule_segment2string(feature, threshold, decision, lower_bound=-1):
+    if threshold == 0.5 and not decision:
+        return feature + ' is applicable'
+
+    feature_name = feature.split('_')[-1]
+    if feature_name == 'type':
+        feature_name = 'sound_type'
+    feature_str = getattr(tipa, feature_name)
+    feature_str[0] = 'N/A'
+
+    threshold = int(threshold) + 1
+    lower_bound = int(lower_bound) + 1
+    feature_str = (feature_str[lower_bound:threshold] if decision
+                   else feature_str[threshold:])
+
+    if len(feature_str) == 1:
+        return feature + ' is ' + feature_str[0]
+    return feature + ' in {' + ', '.join(feature_str) + '}'

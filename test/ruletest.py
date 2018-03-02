@@ -251,22 +251,36 @@ class TestMergeRules(unittest.TestCase):
         self.assertEqual([exp], merge_and_shorten_rules(rule1, rule2))
 
 
-class TestRuleExtractionAndPruning(unittest.TestCase):
+def tree():
+    clf = joblib.load('test/deu_manner.pkl')
+    header = feat.header_list(['deu', 'swe'])
+    header.remove('deu_itself_manner')
+    header.remove('deu_prevOrSelfNonDot_manner')
+    header.remove('deu_prevOrSelfVowel_manner')
+    header.remove('deu_prevOrSelfCons_manner')
 
-    def test_deu_manner(self):
-        header = feat.header_list(['deu', 'swe'])
-        header.remove('deu_itself_manner')
-        header.remove('deu_prevOrSelfNonDot_manner')
-        header.remove('deu_prevOrSelfVowel_manner')
-        header.remove('deu_prevOrSelfCons_manner')
+    classes = ['', 'plosive', 'affricate', 'fricative',
+               'lateral approximant', 'approximant', 'nasal']
 
-        classes = ['', 'plosive', 'affricate', 'fricative',
-                   'lateral approximant', 'approximant', 'nasal']
+    features = ['deu_itself_place', 'deu_prevVowel_rounding',
+                'deu_prevOrSelfCons_voice', 'swe_itself_manner',
+                'swe_prevCons_manner', 'swe_prevOrSelfNonDot_rounding',
+                'swe_prevOrSelfCons_manner']
+    return clf, header, classes, features
 
-        features = ['deu_itself_place', 'deu_prevVowel_rounding',
-                    'deu_prevOrSelfCons_voice', 'swe_itself_manner',
-                    'swe_prevCons_manner', 'swe_prevOrSelfNonDot_rounding',
-                    'swe_prevOrSelfCons_manner']
+
+def rule_to_string(features, thresholds, decisions, class_name):
+    rule = 'IF '
+    for (feature, threshold, decision) in zip(features, thresholds, decisions):
+        rule += (feature + ' ' + (u'\u2264' if decision else '>')
+                 + ' ' + str(threshold) + ' AND ')
+    return rule[:-4] + 'THEN ' + class_name
+
+
+class TestRuleSetFromTree(unittest.TestCase):
+
+    def test_extraction_and_pruning(self):
+        clf, header, classes, features = tree()
         d0t = 'IF ' + features[0] + ' ≤ 0.5 '
         d0f = 'IF ' + features[0] + ' > 0.5 '
         d1t = 'AND ' + features[2] + ' ≤ 1.5 '
@@ -305,7 +319,64 @@ class TestRuleExtractionAndPruning(unittest.TestCase):
         # and is shortened (r3f is covered by r8f)
         r10 = d0f + d1f + d8f + 'THEN nasal'
 
-        clf = joblib.load('test/deu_manner.pkl')
+        rules = traverse(clf.tree_, 0, classes, header, [], [], [], [])
+
+        rules = prune_rules(rules, header)
+
+        rules_str = []
+        for (features, thresholds, decisions, class_name) in rules:
+            rule = rule_to_string(features, thresholds, decisions, class_name)
+            rules_str.append(rule)
+
+        self.assertEqual(11, len(rules_str))
+
+        for rule in (r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10):
+            self.assertTrue(rule in rules_str)
+
+    def test_all(self):
+        clf, header, classes, features = tree()
+        d0t = 'IF ' + features[0] + ' is N/A '
+        d0f = 'IF ' + features[0] + ' is applicable '
+        d1t = 'AND ' + features[2] + ' in {N/A, voiceless} '
+        d1f = 'AND ' + features[2] + ' is voiced '
+        d2t = 'AND ' + features[3] + ' in {N/A, plosive, tap, trill, affricate} '
+        d2f = 'AND ' + features[3] + ' in {fricative, lateral fricative, lateral approximant, approximant, nasal} '
+        d3t = 'AND ' + features[6] + ' in {N/A, plosive, tap, trill, affricate, fricative, lateral fricative} '
+        d3f = 'AND ' + features[6] + ' in {lateral approximant, approximant, nasal} '
+        d4t = 'AND ' + features[5] + ' is N/A '
+        d4f = 'AND ' + features[5] + ' is applicable '
+        d5t = 'AND ' + features[6] + ' in {N/A, plosive, tap} '
+        d5f = 'AND ' + features[6] + ' in {trill, affricate, fricative, lateral fricative, lateral approximant, approximant, nasal} '
+        d6t = 'AND ' + features[0] + ' in {N/A, glottal, pharyngeal, uvular} '
+        d6f = 'AND ' + features[0] + ' in {velar, palatal, retroflex, alveolo-palatal, postalveolar, alveolar, dental, labiodental, bilabial} '
+        d7t = 'AND ' + features[1] + ' is N/A '
+        d7f = 'AND ' + features[1] + ' is applicable '
+        d8t = 'AND ' + features[6] + ' in {N/A, plosive, tap, trill, affricate, fricative, lateral fricative, lateral approximant} '
+        d8f = 'AND ' + features[6] + ' in {approximant, nasal} '
+        d9t = 'AND ' + features[4] + ' in {N/A, plosive, tap, trill, affricate, fricative, lateral fricative} '
+        d9f = 'AND ' + features[4] + ' in {lateral approximant, approximant, nasal} '
+
+        d0fd6t = 'IF ' + features[0] + ' in {glottal, pharyngeal, uvular} '
+        d3td5f = 'AND ' + features[6] + ' in {trill, affricate, fricative, lateral fricative} '
+        d3fd8t = 'AND ' + features[6] + ' is lateral approximant '
+
+        r0 = d0t + 'THEN N/A'
+        # r1 includes two merged rules
+        r1 = d0f + d1t + d2t + 'THEN plosive'
+        r2 = d0f + d1t + d2f + 'THEN fricative'
+        # r3 is shortened (d3t is covered by r5t)
+        r3 = d0f + d1f + d4t + d5t + 'THEN plosive'
+        r4 = d0fd6t + d1f + d4t + d3td5f + 'THEN fricative'
+        # r5 and r6 are shortened (d0f is covered by d6f)
+        r5 = 'IF' + d6f[3:] + d7t + d1f + d4t + d3td5f + 'THEN fricative'
+        r6 = 'IF' + d6f[3:] + d7f + d1f + d4t + d3td5f + 'THEN plosive'
+        r7 = d0f + d1f + d4f + d3t + 'THEN nasal'
+        r8 = d0f + d1f + d9t + d3fd8t + 'THEN lateral approximant'
+        r9 = d0f + d1f + d9f + d3fd8t + 'THEN nasal'
+        # r10 includes two merged rules
+        # and is shortened (r3f is covered by r8f)
+        r10 = d0f + d1f + d8f + 'THEN nasal'
+
         rules = traverse(clf.tree_, 0, classes, header, [], [], [], [])
 
         rules = prune_rules(rules, header)
@@ -318,8 +389,6 @@ class TestRuleExtractionAndPruning(unittest.TestCase):
         self.assertEqual(11, len(rules_str))
 
         for rule in (r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10):
-            print(rule)
-            print()
             self.assertTrue(rule in rules_str)
 
 

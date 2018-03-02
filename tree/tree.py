@@ -1,6 +1,7 @@
 from sklearn import tree
 from preprocessing import transform_ipa as tipa
 from preprocessing.features import simple_file_name
+from . import rules
 import graphviz
 import numpy as np
 import re
@@ -71,7 +72,11 @@ def build_tree(in_file, out_dir, feature, types):
     outfile = out_dir + '/' + feature_name_with_lang
     graph.render(outfile)
 
-    return clf, header, class_names
+    tree_rules = rules.get_rules(clf, class_names, header)
+    outfile += '-rules.txt'
+    with open(outfile, 'w', encoding='utf-8') as f:
+        for rule in tree_rules:
+            f.write(rule + '\n')
 
 
 def build_trees(in_file, out_dir):
