@@ -109,12 +109,11 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
       - [ ] exclude vowels for cons prediction and other way around
 
 Evaluation:
-- [ ] imputation and normalized edit distance (maybe also normalized by edit distance between langs?) is the easiest method
-  - we can re-use the modified NED/Levenshtein distance from the preprocessing step here
-  - human-readable version: transform imputed sounds into IPA symbols 
-    - /!\ some feature combinations are impossible and cannot be represented by IPA symbols
-    - use some sort of error symbol to mark impossible feature combinations?
-    - alternative: pick closest IPA symbol (within reason?)
+- [x] imputation and normalized edit distance using the modified  NED/Levenshtein distance from the preprocessing step
+- human-readable version: transform imputed sounds into IPA symbols 
+  - /!\ some feature combinations are impossible and cannot be represented by IPA symbols
+  - use some sort of error symbol to mark impossible feature combinations?
+  - alternative: pick closest IPA symbol (within reason?)
 - time permitting, we might be able to compute precision values for the generated rules (lit research!)
 - doing the literature research necessary for calculating recall/F1-score would be likely be extremely time-consuming
 
