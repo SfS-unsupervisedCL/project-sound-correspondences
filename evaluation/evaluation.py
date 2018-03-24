@@ -17,16 +17,18 @@ def evaluation(lang_one, lang_two, cognates_file, ipa_file):
     ipa_dict = utils.read_ipa_dict(ipa_file)
     cognate_data, _ = utils.get_cognates(cognates_file, ipa_dict, 0.4, return_phones=True)
     cognate_pairs = [(word_one, word_two) for (_, word_one, word_two, _) in cognate_data]
+    # Getting the names of levels from the cognates_file string
+    levels = cognates_file.split("/")[-1].split("-")[:2]
 
     train_data_size = round(len(cognate_pairs) * 0.9)
     test_data = cognate_pairs[train_data_size:]
     total_nld = 0.0
 
     # Storing source and target words
-    if lang_one in ["rus", "deu"]:
-        s_words, t_words = zip(*test_data)
-    else:
+    if lang_one == levels[0]:
         t_words, s_words = zip(*test_data)
+    else:
+        s_words, t_words = zip(*test_data)
 
     for pair_idx, _ in enumerate(test_data):
         src_word = s_words[pair_idx]
@@ -34,15 +36,16 @@ def evaluation(lang_one, lang_two, cognates_file, ipa_file):
 
         w_length = len(src_word)
         predicted_word = _generate_template(w_len=w_length)
-
-        levels = [lang_one, lang_two]
         header = header_list(levels)
 
         # store the labels of all phonetic features except sound type
         phonetic_features = transform_ipa.phonetic_features[1:]
 
         for sound_idx in range(w_length - 1):
-            features_matrix = get_features(predicted_word, target_word)
+            if lang_one in ["ukr", "swe"]:
+                features_matrix = get_features(src_word, predicted_word)
+            else:
+                features_matrix = get_features(predicted_word, src_word)
             sound = []
 
             for feature_name in phonetic_features:
@@ -65,11 +68,7 @@ def evaluation(lang_one, lang_two, cognates_file, ipa_file):
             sound = [_detect_sound_type(sound)] + sound
             predicted_word[sound_idx + 1] = Phone(*sound)
 
-        nld = utils.lev_distance(predicted_word, src_word, ipa_dict=ipa_dict)
-        # uncomment to see the generated words(list of phones)
-        # print("------------")
-        # for s in predicted_word:
-        #     print(s)
+        nld = utils.lev_distance(predicted_word, target_word, ipa_dict=ipa_dict)
         total_nld += nld
 
     n_words = len(test_data)
@@ -110,7 +109,9 @@ def _detect_sound_type(sound_features):
 
 if __name__ == "__main__":
     evaluation("deu", "swe", "../data/deu-swe-all.csv", "../data/ipa_numerical.csv")
+    evaluation("swe", "deu", "../data/deu-swe-all.csv", "../data/ipa_numerical.csv")
     evaluation("rus", "ukr", "../data/rus-ukr-all.csv", "../data/ipa_numerical.csv")
+    evaluation("ukr", "rus", "../data/rus-ukr-all.csv", "../data/ipa_numerical.csv")
 
 
 

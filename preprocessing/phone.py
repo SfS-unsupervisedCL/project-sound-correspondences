@@ -1,4 +1,4 @@
-from . import transform_ipa as tipa
+from preprocessing import transform_ipa as tipa
 
 
 class Phone(object):
@@ -117,6 +117,8 @@ def attributes():
 
 if __name__ == "__main__":
     p = Phone(*[1, 9, 1, 1, 2, 2, 2, 1, 1, 1])
+    t = Phone(*[2, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    print(t)
     print(p)
     print(p.attributes())
     print(p.features())
