@@ -24,6 +24,9 @@ def get_rules(clf, class_names, feature_names):
     rules = traverse(tree, 0, class_names, feature_names, [], [], [], [])
     rules = prune_rules(rules, feature_names)
 
+    n_rules = len(rules)
+    print('\tExtracted', n_rules, 'rule' + ('s.' if n_rules > 1 else '.'))
+
     rules_str = []
     for (features, thresholds, decisions, class_name) in rules:
         rule = lists2rule(features, thresholds, decisions, class_name)
@@ -121,7 +124,7 @@ def prune_rules(rules, feature_names):
     # 'If A > 4 then class1.'
     rules_pruned = rules
     remove_rules = []
-    change_rules = True
+    change_rules = len(rules_pruned) > 1
 
     while change_rules:
         remove_rules = []
@@ -142,7 +145,7 @@ def prune_rules(rules, feature_names):
             except ValueError:
                 pass
 
-        change_rules = len(remove_rules) > 0
+        change_rules = len(remove_rules) > 0 and len(rules_pruned) > 1
 
     # Sometimes, a rule contains redundant decisions.
     # Replace, e.g.,

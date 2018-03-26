@@ -14,7 +14,6 @@ features_dict = dict(zip(tipa.phonetic_features[1:], tipa.all_features[1:]))
 
 def build_tree(in_file, out_dir, feature, types):
     feature_name_with_lang = re.sub('itself_', '', feature)
-    feature_name = feature_name_with_lang.split('_')[1]
     print("Building the tree for {}.".format(feature_name_with_lang))
 
     with open(in_file, 'r', encoding='utf-8') as f:
