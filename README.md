@@ -1,5 +1,7 @@
 # Identifying Sound Correspondence Rules in Bilingual Wordlists
 
+The project report can be found in the ```/doc``` folder.
+
 ## Motivation
 
 Identifying regular, systematic sound correspondences between the vocabularies of two or more languages is a key method of historical linguistics. Given a large set of such correspondences, it can be surmised that the languages share a common ancestor. 
@@ -169,6 +171,8 @@ Packages for decision tree learning:
 - R:
   - [rpart](https://cran.r-project.org/web/packages/rpart/rpart.pdf)
   - [party](https://cran.r-project.org/web/packages/party/party.pdf)
+
+We chose the sklearn package since it allowed for the easiest integration with our other python code. Unfortunately, none of these decision tree classifier packages allow for rule ectraction, so we implemented that by hand.
 
 ## Project members
 

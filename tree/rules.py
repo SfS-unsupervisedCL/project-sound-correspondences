@@ -1,4 +1,5 @@
 from preprocessing import transform_ipa as tipa
+from preprocessing import utils
 from sklearn.tree import _tree
 from copy import deepcopy
 import numpy as np
@@ -35,7 +36,7 @@ def traverse(tree, node,
              class_names, feature_names,
              features, thresholds, decisions, rules):
     """
-    A recusive method for performing a pre-order traversal of a given tree,
+    A recursive method for performing a pre-order traversal of a given tree,
     while collecting the rules it contains.
 
     Keyword arguments:
@@ -245,7 +246,7 @@ def merge_and_shorten_rules(rule1, rule2):
     if (class_name1 != class_name2 or
             len(decisions1) != len(decisions2) or
             features1 != features2 or
-            thresholds1 != thresholds2):  # TODO /!\ floats!
+            not equals(thresholds1, thresholds2)):
         # too many differences
         return [rule1, rule2]
 
@@ -265,6 +266,18 @@ def merge_and_shorten_rules(rule1, rule2):
              thresholds1[:diff_index] + thresholds1[diff_index + 1:],
              decisions1[:diff_index] + decisions1[diff_index + 1:],
              class_name1)]
+
+
+def equals(list1, list2):
+    """
+    Compares two lists of floating point numbers.
+    """
+    if len(list1) != len(list2):
+        return False
+    for (elem1, elem2) in zip(list1, list2):
+        if not utils.equals(elem1, elem2):
+            return False
+    return True
 
 
 def lists2rule(features, thresholds, decisions, class_name):
