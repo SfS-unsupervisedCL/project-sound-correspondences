@@ -1,0 +1,11 @@
+IF rus_itself_place in {alveolar, dental} AND rus_itself_secondary in {N/A, pharyngealized} AND rus_prevOrSelfNonDot_manner in {lateral approximant, approximant, nasal} AND rus_prevOrSelfCons_manner in {N/A, plosive, tap, trill, affricate, fricative, lateral fricative, lateral approximant, approximant} THEN palatalized
+IF rus_itself_manner in {fricative, lateral fricative, lateral approximant, approximant, nasal} AND rus_itself_place in {alveolar, dental} AND rus_itself_secondary in {velarized, palatalized, labialized, non-syllabic} AND ukr_prevVowel_horizontal in {N/A, back, near-back} THEN N/A
+IF rus_itself_manner in {fricative, lateral fricative, lateral approximant, approximant, nasal} AND rus_itself_place in {alveolar, dental} AND rus_itself_secondary in {velarized, palatalized, labialized, non-syllabic} AND ukr_prevVowel_horizontal in {central, near-front, front} THEN palatalized
+IF rus_itself_place is labiodental AND rus_prev_rounding is N/A AND ukr_prevNonDot_length is N/A THEN labialized
+IF rus_itself_place is labiodental AND rus_prev_rounding is N/A AND ukr_prevNonDot_length is applicable THEN N/A
+IF rus_itself_place is labiodental AND rus_prev_rounding is applicable THEN labialized
+IF rus_itself_place in {alveolar, dental} AND rus_itself_secondary in {N/A, pharyngealized} AND rus_prevOrSelfNonDot_manner in {lateral approximant, approximant, nasal} AND rus_prevOrSelfCons_manner is nasal THEN N/A
+IF rus_itself_place is bilabial THEN N/A
+IF rus_itself_manner in {N/A, plosive, tap, trill, affricate} AND rus_itself_place in {alveolar, dental} AND rus_itself_secondary in {velarized, palatalized, labialized, non-syllabic} THEN N/A
+IF rus_itself_place in {alveolar, dental} AND rus_itself_secondary in {N/A, pharyngealized} AND rus_prevOrSelfNonDot_manner in {N/A, plosive, tap, trill, affricate, fricative, lateral fricative} THEN N/A
+IF rus_itself_place in {N/A, glottal, pharyngeal, uvular, velar, palatal, retroflex, alveolo-palatal, postalveolar} THEN N/A

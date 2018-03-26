@@ -1,0 +1,6 @@
+IF rus_itself_manner is N/A AND rus_prevOrSelfNonDot_vertical in {N/A, open} AND ukr_prevNonDot_manner is N/A THEN voiced
+IF rus_itself_manner is N/A AND rus_prevOrSelfNonDot_vertical in {near-open, open-mid, mid, close-mid, near-close, close} AND ukr_prevNonDot_manner is N/A THEN N/A
+IF rus_itself_manner is applicable AND rus_prevOrSelfNonDot_voice in {N/A, voiceless} AND rus_prevOrSelfCons_manner in {lateral fricative, lateral approximant, approximant, nasal} THEN voiced
+IF rus_itself_manner is N/A AND ukr_prevNonDot_manner is applicable THEN N/A
+IF rus_itself_manner is applicable AND rus_prevOrSelfNonDot_voice in {N/A, voiceless} AND rus_prevOrSelfCons_manner in {N/A, plosive, tap, trill, affricate, fricative} THEN voiceless
+IF rus_itself_manner is applicable AND rus_prevOrSelfNonDot_voice is voiced THEN voiced

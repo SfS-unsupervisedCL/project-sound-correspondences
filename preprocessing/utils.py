@@ -1,6 +1,6 @@
-from preprocessing.phone import Phone
-from preprocessing.phon_inventory import process_line
-from preprocessing import transform_ipa as tipa
+from .phone import Phone
+from .phon_inventory import process_line
+from . import transform_ipa as tipa
 import numpy as np
 import copy
 import re

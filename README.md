@@ -106,7 +106,6 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
       - [ ] trim the trees: play around with values for min_samples_split/min_samples_leaf, min_impurity_decrease
         - Unfortunately, it appears that sklearn does not allow us to prevent splits that result in sibling nodes predicting the same category.
       - [x] exclude prevOrSelf_ in certain cases
-      - [ ] exclude vowels for cons prediction and other way around
 
 Evaluation:
 - [x] imputation and normalized edit distance using the modified  NED/Levenshtein distance from the preprocessing step

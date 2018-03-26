@@ -270,7 +270,7 @@ def merge_and_shorten_rules(rule1, rule2):
 def lists2rule(features, thresholds, decisions, class_name):
     """
     Transforms the given lists into a string containing the rule that
-    describes a lef node.
+    describes a leaf node.
     Assumes that len(features) == len(thresholds) == len(decisions).
 
     Keyword arguments:
@@ -310,6 +310,24 @@ def lists2rule(features, thresholds, decisions, class_name):
 
 
 def rule_segment2string(feature, threshold, decision, lower_bound=-1):
+    """
+    Transforms a single rule segment into a string.
+
+    Keyword arguments:
+    feature: A str containing the feature name.
+    threshold: A float that is the decision node threshold,
+               corresponding to `feature`.
+    decisions: A bool containing the decision,
+               corresponding to `feature` and `threshold`.
+    lower_bound: A float describing a secondary threshold
+                 (default: -1, i.e. no secondary threshold).
+
+    Returns:
+    A str representing the rule segment.
+
+    >>> rule_segment2string('manner', 6, True, 2)
+    'manner in {tap, trill, affricate, fricative}'
+    """
     if threshold == 0.5 and not decision:
         return feature + ' is applicable'
 

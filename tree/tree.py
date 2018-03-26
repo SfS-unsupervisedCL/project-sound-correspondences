@@ -1,11 +1,10 @@
 from sklearn import tree
-import pickle
 from preprocessing import transform_ipa as tipa
-from preprocessing.transform_ipa import phonetic_features
 from preprocessing.features import simple_file_name
-import rules
-import graphviz
+from . import rules
 import numpy as np
+import pickle
+import graphviz
 import re
 import sys
 
@@ -23,7 +22,7 @@ def build_tree(in_file, out_dir, feature, types):
         header = re.sub('[# \\n]', '', header)
         header = header.split(',')
 
-    # exclude certain information from the training data:
+    # Exclude certain information from the training data:
     # - the column that we want to predict (label_col)
     # - columns about features that are too similar to label_col
     #   (prevOrSelfNonDot, prevOrSelfConsonant, prevOrSelfVowel
@@ -61,7 +60,8 @@ def build_tree(in_file, out_dir, feature, types):
         # min_impurity_decrease=0.01,
         min_samples_leaf=0.01)
     clf = clf.fit(data, labels)
-    with open(out_dir + feature_name_with_lang + '.pickle', 'wb') as handle:
+    with open('evaluation/classifiers/' + feature_name_with_lang +
+              '.pickle', 'wb') as handle:
         pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     dot_data = tree.export_graphviz(clf,
@@ -77,7 +77,7 @@ def build_tree(in_file, out_dir, feature, types):
     graph.render(outfile)
 
     tree_rules = rules.get_rules(clf, class_names, header)
-    outfile += '-rules.txt'
+    outfile += '_rules.txt'
     with open(outfile, 'w', encoding='utf-8') as f:
         for rule in tree_rules:
             f.write(rule + '\n')
