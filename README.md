@@ -18,7 +18,7 @@ Example: (medial/final) /t/ : /s/ in Swedish and German
 | (to) flow    | flyːta  | fliːsən |
 | foot         | fuːt    | fuːs    |
 
-Our research questions are: 
+Research questions (beyond the scope of just this one term project): 
 - Can we identify sound correspondence rules between cognate languages in an unsupervised manner?
 - How well does this work: How complicated can the rule contexts be? How does such an unsupervised system compare to similar supervised methods or to non-computational methods?
 
@@ -91,7 +91,7 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
   - [x] use the phone distances for the alignment (instead of vanilla Needleman-Wunsch)
   - [x] encode empty strings as phones
   - [x] prefix a special word-boundary phone to each word
-- [ ] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) 
+- [x] create feature- and level-based decision trees for the aligned symbols (input: source sound, output: target sound) 
   - [x] position features: identify previous vowel/consonant etc. for each symbol
   - [x] for each phone in a word, determine corresponding phones for each position and create feature sets (e.g. _sourceLang\_itself\_voiced=true_, _targetLang\_prevConsonant\_manner=plosive_, etc.)
   - [x] transform the (string) features into features the decision tree packages can work with (integers) (this way, we could also take advantage of the implicit scales that some of the features describe, e.g. vowel height, place of consonant articulation, etc.)
@@ -99,23 +99,24 @@ Method (feature selection based on Wettig et al. 2012; see also the [slides](htt
   - [x] for each level (i.e. _source_, _target_) and feature combination (e.g. _target\_manner_), create a set of labelled feature sets
   - [x] build one tree for each level-feature combination (see below in the _Available data, tools, resources section_ for package options)
   - [x] export the trees
-  - [ ] export the rules
+  - [x] export the rules
       - [x] Perform a tree-traversal to get the rules.
       - [x] Merge rules that describe sibling leaf nodes that predict the same class.
-      - [ ] Switch back from numerical values to categorical ones.
-      - [ ] Combine rules that predict the same classes?
+      - [x] Switch back from numerical values to categorical ones.
   - Possible improvements:
-      - [ ] trim the trees: play around with values for min_samples_split/min_samples_leaf, min_impurity_decrease
+      - [x] trim the trees: play around with values for min_samples_split/min_samples_leaf, min_impurity_decrease
         - Unfortunately, it appears that sklearn does not allow us to prevent splits that result in sibling nodes predicting the same category.
       - [x] exclude prevOrSelf_ in certain cases
 
 Evaluation:
 - [x] imputation and normalized edit distance using the modified  NED/Levenshtein distance from the preprocessing step
+
+would be interesting, but too time-consuming:
 - human-readable version: transform imputed sounds into IPA symbols 
   - /!\ some feature combinations are impossible and cannot be represented by IPA symbols
   - use some sort of error symbol to mark impossible feature combinations?
   - alternative: pick closest IPA symbol (within reason?)
-- time permitting, we might be able to compute precision values for the generated rules (lit research!)
+- compute precision values for the generated rules (lit research!)
 - doing the literature research necessary for calculating recall/F1-score would be likely be extremely time-consuming
 
 ## Notes
@@ -172,7 +173,7 @@ Packages for decision tree learning:
   - [rpart](https://cran.r-project.org/web/packages/rpart/rpart.pdf)
   - [party](https://cran.r-project.org/web/packages/party/party.pdf)
 
-We chose the sklearn package since it allowed for the easiest integration with our other python code. Unfortunately, none of these decision tree classifier packages allow for rule ectraction, so we implemented that by hand.
+We chose the sklearn package since it allowed for the easiest integration with our other python code. Unfortunately, none of these decision tree classifier packages allow for rule extraction, so we implemented that by hand.
 
 ## Project members
 
