@@ -58,7 +58,7 @@ def evaluation(lang_one, lang_two, cognates_file, ipa_file):
                 data = np.delete(features_matrix, removed_indices, 1)
                 data = np.array(data[sound_idx, :]).reshape((1, -1))
 
-                clf_file = "classifiers/{}_{}.pickle".format(lang_one, feature_name)
+                clf_file = "evaluation/classifiers/{}_{}.pickle".format(lang_one, feature_name)
                 with open(clf_file, 'rb') as handle:
                     clf = pickle.load(handle)
 
@@ -108,10 +108,10 @@ def _detect_sound_type(sound_features):
         return 4
 
 if __name__ == "__main__":
-    evaluation("deu", "swe", "../data/deu-swe-all.csv", "../data/ipa_numerical.csv")
-    evaluation("swe", "deu", "../data/deu-swe-all.csv", "../data/ipa_numerical.csv")
-    evaluation("rus", "ukr", "../data/rus-ukr-all.csv", "../data/ipa_numerical.csv")
-    evaluation("ukr", "rus", "../data/rus-ukr-all.csv", "../data/ipa_numerical.csv")
+    evaluation("deu", "swe", "data/deu-swe-all.csv", "data/ipa_numerical.csv")
+    evaluation("swe", "deu", "data/deu-swe-all.csv", "data/ipa_numerical.csv")
+    evaluation("rus", "ukr", "data/rus-ukr-all.csv", "data/ipa_numerical.csv")
+    evaluation("ukr", "rus", "data/rus-ukr-all.csv", "data/ipa_numerical.csv")
 
 
 
