@@ -27,10 +27,11 @@ Research questions (beyond the scope of just this one term project):
 We adapted the structure of the imports to allow relative imports from ```preprocessing``` into ```tree```. In order to run the scripts with this import structure, it is necessary to run them as modules from the parent directory (i.e., ```project-sound-correspondences```), e.g.
 
 ```
-python -m preprocessing.merge_lists deu data\deu.csv swe data\swe.csv data
-python -m preprocessing.features data\rus-ukr-all.csv data\ipa_numerical.csv 0.4
-python -m tree.tree data\deu-swe-features.csv output
+python -m preprocessing.merge_lists deu data/deu.csv swe data/swe.csv data
+python -m preprocessing.features data/deu-swe-all.csv data/ipa_numerical.csv 0.4 0.9
+python -m tree.tree data/deu-swe-features.csv output
 python -m test.ruletest -v
+python -m evaluation.evaluation deu swe data/deu-swe-all.csv data/ipa_numerical.csv output
 ```
 
 ## Method
