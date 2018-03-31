@@ -284,8 +284,6 @@ def get_cognates(file, ipa_dict, threshold=0.4, return_phones=False):
 
         word1, word2 = needleman_wunsch(word1, word2, ipa_dict, return_phones)
         ld = lev_distance(word1, word2, ipa_dict)
-        # word1 = ''.join(word1[1:])
-        # word2 = ''.join(word2[1:])
         entry = (concept_id, word1, word2, round(ld, 2))
         if ld < threshold:
             cognates.append(entry)

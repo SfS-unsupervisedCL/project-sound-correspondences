@@ -1,19 +1,19 @@
-IF deu_prevNonDot_vertical in {N/A, open, near-open, open-mid} AND swe_itself_manner is N/A AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_vertical in {N/A, open} AND swe_prevOrSelfVowel_sound_type in {N/A, dot, word boundary} THEN N/A
-IF deu_prevNonDot_vertical in {mid, close-mid, near-close, close} AND swe_itself_manner is N/A AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_vertical in {N/A, open} THEN N/A
-IF swe_itself_manner in {plosive, tap, trill, affricate} AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_manner in {trill, affricate, fricative, lateral fricative, lateral approximant, approximant, nasal} AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfNonDot_vertical in {N/A, open} THEN central
-IF deu_prevVowel_vertical in {N/A, open} AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_vertical in {near-open, open-mid, mid, close-mid, near-close, close} THEN near-front
-IF deu_prevVowel_vertical in {near-open, open-mid, mid, close-mid, near-close, close} AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_vertical in {near-open, open-mid, mid, close-mid, near-close, close} THEN N/A
-IF swe_itself_vertical is applicable AND swe_itself_rounding in {N/A, unrounded} AND swe_prevVowel_horizontal is N/A AND swe_prevOrSelfNonDot_length in {N/A, normal, half-long} AND swe_prevOrSelfVowel_horizontal in {N/A, back, near-back, central, near-front} THEN near-front
-IF swe_itself_vertical is applicable AND swe_itself_rounding in {N/A, unrounded} AND swe_prevVowel_horizontal is N/A AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfVowel_horizontal in {N/A, back, near-back, central, near-front} THEN front
-IF swe_itself_vertical is applicable AND swe_itself_rounding is rounded AND swe_prevVowel_horizontal is N/A AND swe_prevOrSelfNonDot_horizontal in {central, near-front, front} AND swe_prevOrSelfVowel_horizontal in {N/A, back, near-back, central} THEN near-back
-IF swe_itself_vertical in {near-open, open-mid} AND swe_prevVowel_horizontal is applicable THEN front
-IF swe_itself_vertical in {close-mid, near-close, close} AND swe_prevVowel_horizontal is applicable THEN near-front
-IF deu_prevNonDot_vertical in {N/A, open, near-open, open-mid} AND swe_itself_manner is N/A AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_vertical in {N/A, open} AND swe_prevOrSelfVowel_sound_type in {consonant, vowel} THEN central
-IF swe_itself_manner in {plosive, tap, trill, affricate} AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_manner in {N/A, plosive, tap} AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfNonDot_vertical in {N/A, open} THEN N/A
-IF swe_itself_vertical is applicable AND swe_itself_rounding is rounded AND swe_prevVowel_horizontal is N/A AND swe_prevOrSelfVowel_horizontal in {near-front, front} THEN front
-IF swe_itself_vertical is mid AND swe_prevVowel_horizontal is applicable THEN central
-IF swe_itself_vertical is applicable AND swe_itself_rounding is rounded AND swe_prevVowel_horizontal is N/A AND swe_prevOrSelfNonDot_horizontal in {N/A, back, near-back} AND swe_prevOrSelfVowel_horizontal in {N/A, back, near-back, central} THEN back
-IF swe_itself_manner in {fricative, lateral fricative, lateral approximant, approximant, nasal} AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfNonDot_vertical in {N/A, open} THEN N/A
-IF swe_itself_vertical is applicable AND swe_itself_rounding in {N/A, unrounded} AND swe_prevVowel_horizontal is N/A AND swe_prevOrSelfVowel_horizontal is front THEN front
-IF swe_itself_vertical is open AND swe_prevVowel_horizontal is applicable THEN central
-IF swe_itself_manner is applicable AND swe_itself_vertical is N/A AND swe_prevOrSelfNonDot_length in {N/A, normal, half-long} AND swe_prevOrSelfNonDot_vertical in {N/A, open} THEN N/A
+IF deu_prevNonDot_vertical in {N/A, open, near-open, open-mid} AND deu_prevVowel_horizontal is N/A AND swe_itself_manner is N/A AND swe_itself_rounding is N/A AND swe_prev_vertical in {N/A, open, near-open} THEN N/A
+IF deu_prevNonDot_vertical in {N/A, open, near-open, open-mid} AND swe_itself_manner is N/A AND swe_itself_rounding is N/A AND swe_prev_vertical in {open-mid, mid, close-mid, near-close, close} THEN near-front
+IF swe_itself_manner is applicable AND swe_itself_rounding is N/A AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfCons_manner in {trill, affricate} THEN central
+IF deu_prevVowel_vertical is N/A AND swe_itself_horizontal in {N/A, back, near-back, central, near-front} AND swe_itself_rounding is applicable AND swe_prevOrSelfNonDot_vertical in {near-close, close} AND swe_prevOrSelfVowel_rounding in {N/A, unrounded} THEN near-front
+IF deu_prevVowel_vertical is N/A AND swe_itself_horizontal is front AND swe_itself_rounding is applicable AND swe_prevOrSelfNonDot_vertical in {near-close, close} AND swe_prevOrSelfVowel_rounding in {N/A, unrounded} THEN front
+IF deu_prevVowel_vertical is N/A AND swe_itself_rounding is applicable AND swe_prevOrSelfNonDot_horizontal in {central, near-front, front} AND swe_prevOrSelfVowel_horizontal in {N/A, back, near-back, central} AND swe_prevOrSelfVowel_rounding is rounded THEN near-back
+IF deu_prevVowel_vertical is applicable AND swe_itself_rounding is applicable AND swe_prevOrSelfVowel_vertical is open-mid THEN front
+IF deu_prevVowel_vertical is applicable AND swe_itself_rounding is applicable AND swe_prev_manner in {N/A, plosive, tap} AND swe_prevOrSelfVowel_vertical in {close-mid, near-close, close} THEN near-back
+IF deu_prevVowel_vertical is applicable AND swe_itself_rounding is applicable AND swe_prev_manner in {trill, affricate, fricative, lateral fricative, lateral approximant, approximant, nasal} AND swe_prevOrSelfVowel_vertical in {close-mid, near-close, close} THEN near-front
+IF deu_prevNonDot_vertical in {N/A, open, near-open, open-mid} AND deu_prevVowel_horizontal is applicable AND swe_itself_manner is N/A AND swe_itself_rounding is N/A AND swe_prev_vertical in {N/A, open, near-open} THEN central
+IF deu_prevNonDot_vertical in {mid, close-mid, near-close, close} AND swe_itself_manner is N/A AND swe_itself_rounding is N/A THEN N/A
+IF swe_itself_manner is applicable AND swe_itself_rounding is N/A AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfCons_manner in {N/A, plosive, tap} THEN N/A
+IF deu_prevVowel_vertical is N/A AND swe_itself_rounding is applicable AND swe_prevOrSelfNonDot_horizontal in {N/A, back, near-back} AND swe_prevOrSelfVowel_horizontal in {N/A, back, near-back, central} AND swe_prevOrSelfVowel_rounding is rounded THEN back
+IF deu_prevVowel_vertical is N/A AND swe_itself_rounding is applicable AND swe_prevOrSelfVowel_horizontal in {near-front, front} AND swe_prevOrSelfVowel_rounding is rounded THEN front
+IF deu_prevVowel_vertical is applicable AND swe_itself_rounding is applicable AND swe_prevOrSelfVowel_vertical is mid THEN central
+IF swe_itself_manner is applicable AND swe_itself_rounding is N/A AND swe_prevOrSelfNonDot_length is long AND swe_prevOrSelfCons_manner in {fricative, lateral fricative, lateral approximant, approximant, nasal} THEN N/A
+IF deu_prevVowel_vertical is applicable AND swe_itself_rounding is applicable AND swe_prevOrSelfVowel_vertical in {N/A, open, near-open} THEN central
+IF deu_prevVowel_vertical is N/A AND swe_itself_rounding is applicable AND swe_prevOrSelfNonDot_vertical in {N/A, open, near-open, open-mid, mid, close-mid} AND swe_prevOrSelfVowel_rounding in {N/A, unrounded} THEN front
+IF swe_itself_manner is applicable AND swe_itself_rounding is N/A AND swe_prevOrSelfNonDot_length in {N/A, normal, half-long} THEN N/A

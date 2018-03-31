@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import sys
 from preprocessing import transform_ipa
 from preprocessing import utils
 from preprocessing.phone import Phone
@@ -8,7 +9,7 @@ from preprocessing.features import header_list
 from operator import itemgetter
 
 
-def evaluation(lang_one, lang_two, cognates_file, ipa_file):
+def evaluation(lang_one, lang_two, cognates_file, ipa_file, out_file):
     """
     Generate words using the cognates from the second language and
     decision trees that describe sound transformation between two languages.
@@ -74,8 +75,16 @@ def evaluation(lang_one, lang_two, cognates_file, ipa_file):
     n_words = len(test_data)
     average_nld = total_nld / n_words
 
-    print("Results for '{}' based on '{}' language".format(lang_one, lang_two))
-    print("{}: average NLD for {} test words".format(round(average_nld, 2), n_words))
+    intro = "Results for '{}' based on '{}' language".format(lang_one, lang_two)
+    result = "{}: average NLD for {} test words".format(round(average_nld, 2), n_words)
+
+    out_file += "/{}-{}-evaluation.csv".format(lang_one, lang_two)
+
+    with open(out_file, 'w', encoding='utf-8') as f:
+        f.write(intro + '\n' + result + '\n')
+
+    print(intro + '\n' + result)
+
 
 def _generate_template(w_len):
     """
@@ -101,17 +110,18 @@ def _detect_sound_type(sound_features):
     vocalic_features = list(itemgetter(*[5, 6])(sound_features))
 
     if consonantal_features == vocalic_features == [0, 0]:
-        return 1
+        return 1  # dot symbol
     elif consonantal_features > vocalic_features:
         return 3
     else:
         return 4
 
 if __name__ == "__main__":
-    evaluation("deu", "swe", "data/deu-swe-all.csv", "data/ipa_numerical.csv")
-    evaluation("swe", "deu", "data/deu-swe-all.csv", "data/ipa_numerical.csv")
-    evaluation("rus", "ukr", "data/rus-ukr-all.csv", "data/ipa_numerical.csv")
-    evaluation("ukr", "rus", "data/rus-ukr-all.csv", "data/ipa_numerical.csv")
+    if len(sys.argv) < 5:
+        sys.stderr.write('Usage: %s TARGET_LANGUAGE SOURCE_LANGUAGE BILINGUAL_WORD_LIST '
+                         'IPA_FILE OUTPUT_DIR\n' % sys.argv[0])
+        sys.exit(1)
+    evaluation(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
 
 
 

@@ -1,7 +1,7 @@
-IF deu_itself_sound_type in {N/A, dot, word boundary, consonant} AND deu_itself_manner is N/A AND swe_prevNonDot_horizontal is N/A AND swe_prevCons_manner in {N/A, plosive, tap, trill, affricate} THEN unrounded
-IF deu_itself_sound_type in {N/A, dot, word boundary, consonant} AND deu_itself_manner is N/A AND swe_prevNonDot_horizontal is N/A AND swe_prevCons_manner in {fricative, lateral fricative, lateral approximant, approximant, nasal} THEN N/A
-IF deu_itself_sound_type in {N/A, dot, word boundary, consonant} AND deu_itself_manner is N/A AND swe_prevNonDot_horizontal is applicable THEN N/A
-IF deu_itself_sound_type is vowel AND deu_prevOrSelfVowel_rounding in {N/A, unrounded} AND swe_prevNonDot_horizontal is applicable THEN N/A
-IF deu_itself_sound_type is vowel AND deu_prevOrSelfVowel_rounding is rounded THEN rounded
-IF deu_itself_sound_type in {N/A, dot, word boundary, consonant} AND deu_itself_manner is applicable THEN N/A
-IF deu_itself_sound_type is vowel AND deu_prevOrSelfVowel_rounding in {N/A, unrounded} AND swe_prevNonDot_horizontal is N/A THEN unrounded
+IF deu_itself_manner is N/A AND deu_itself_rounding is N/A AND swe_prevNonDot_vertical is N/A AND swe_prevVowel_vertical in {N/A, open, near-open} THEN N/A
+IF deu_itself_manner is N/A AND deu_itself_rounding is N/A AND swe_prevNonDot_vertical is N/A AND swe_prevVowel_vertical in {open-mid, mid, close-mid, near-close, close} THEN unrounded
+IF deu_itself_manner is N/A AND deu_itself_rounding is N/A AND swe_prevNonDot_vertical is applicable THEN N/A
+IF deu_itself_rounding is applicable AND deu_prevOrSelfVowel_rounding in {N/A, unrounded} AND swe_prevNonDot_horizontal is applicable THEN N/A
+IF deu_itself_rounding is applicable AND deu_prevOrSelfVowel_rounding is rounded THEN rounded
+IF deu_itself_manner is applicable AND deu_itself_rounding is N/A THEN N/A
+IF deu_itself_rounding is applicable AND deu_prevOrSelfVowel_rounding in {N/A, unrounded} AND swe_prevNonDot_horizontal is N/A THEN unrounded

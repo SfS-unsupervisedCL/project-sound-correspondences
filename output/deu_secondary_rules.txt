@@ -1,6 +1,3 @@
-IF deu_prevNonDot_horizontal is front AND deu_prevCons_voice in {N/A, voiceless} AND swe_itself_manner in {plosive, tap, trill, affricate} AND swe_itself_length is long THEN non-syllabic
-IF deu_prevNonDot_horizontal is front AND deu_prevCons_voice is voiced AND swe_itself_manner in {plosive, tap, trill, affricate} AND swe_itself_length is long THEN N/A
-IF deu_prevNonDot_horizontal is front AND swe_itself_manner is N/A THEN non-syllabic
-IF deu_prevNonDot_horizontal is front AND swe_itself_manner in {fricative, lateral fricative, lateral approximant, approximant, nasal} AND swe_itself_length is long THEN N/A
+IF deu_prevNonDot_horizontal is front AND swe_itself_voice is N/A THEN non-syllabic
 IF deu_prevNonDot_horizontal in {N/A, back, near-back, central, near-front} THEN N/A
-IF deu_prevNonDot_horizontal is front AND swe_itself_manner is applicable AND swe_itself_length in {N/A, normal, half-long} THEN N/A
+IF deu_prevNonDot_horizontal is front AND swe_itself_voice is applicable THEN N/A

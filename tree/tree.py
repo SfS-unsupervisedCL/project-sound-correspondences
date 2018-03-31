@@ -56,7 +56,6 @@ def build_tree(in_file, out_dir, feature, types):
 
     clf = tree.DecisionTreeClassifier(
         criterion='entropy',
-        # min_impurity_decrease=0.01,
         min_samples_leaf=0.01)
     clf = clf.fit(data, labels)
     with open('evaluation/classifiers/' + feature_name_with_lang +
@@ -88,10 +87,6 @@ def build_trees(in_file, out_dir):
                 for language in languages
                 for key in features_dict]
     for feature in features:
-        # phon_feat = feature.split("_")[-1]
-        # if 'sound_type' in feature:
-        #     phon_feat = 'sound_type'
-        # types = features_dict[phon_feat]
         types = features_dict[feature.split("_")[-1]]
         build_tree(in_file, out_dir, feature, types)
     print("Done.")
